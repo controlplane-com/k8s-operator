@@ -1,0 +1,27 @@
+apiVersion: admissionregistration.k8s.io/v1
+kind: MutatingWebhookConfiguration
+metadata:
+  name: controlplane-operator
+  annotations:
+    cert-manager.io/inject-ca-from: "controlplane/webhook-cert"
+webhooks:
+  - name: webhook.cpln.io
+    admissionReviewVersions: ["v1", "v1beta1"]
+    sideEffects: None
+    matchPolicy: Equivalent
+    namespaceSelector: {}
+    objectSelector: {}
+    clientConfig:
+      service:
+        name: operator
+        namespace: controlplane
+        path: /mutate
+        port: 443
+      # no caBundle needed here; cert-manager will inject it
+    rules:
+      - apiGroups:   ["cpln.io"]
+        apiVersions: ["v1"]
+        resources:   ["*"]
+        operations:  ["CREATE","UPDATE"]
+        scope:       "Namespaced"
+    reinvocationPolicy: Never

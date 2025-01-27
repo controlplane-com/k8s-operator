@@ -1,0 +1,171 @@
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: volumesets.cpln.io
+spec:
+  group: cpln.io
+  names:
+    kind: volumeset
+    plural: volumesets
+  scope: Namespaced
+  versions:
+  - name: v1
+    schema:
+      openAPIV3Schema:
+        properties:
+          created:
+            type: string
+          description:
+            type: string
+          gvc:
+            type: string
+          id:
+            type: string
+          kind:
+            type: string
+          lastModified:
+            type: string
+          links:
+            items:
+              properties:
+                href:
+                  type: string
+                rel:
+                  type: string
+              type: object
+            type: array
+          name:
+            type: string
+          spec:
+            properties:
+              autoscaling:
+                properties:
+                  maxCapacity:
+                    type: number
+                  minFreePercentage:
+                    type: number
+                  scalingFactor:
+                    type: number
+                type: object
+              fileSystemType:
+                type: string
+              initialCapacity:
+                type: number
+              performanceClass:
+                type: string
+              snapshots:
+                properties:
+                  createFinalSnapshot:
+                    type: boolean
+                  retentionDuration:
+                    type: string
+                  schedule:
+                    type: string
+                type: object
+              storageClassSuffix:
+                type: string
+            type: object
+          status:
+            properties:
+              bindingId:
+                type: string
+              conditions:
+                items:
+                  properties:
+                    status:
+                      type: string
+                    type:
+                      type: string
+                  type: object
+                type: array
+              locations:
+                items:
+                  properties:
+                    clusterId:
+                      type: string
+                    desiredVolumeCount:
+                      type: number
+                    name:
+                      type: string
+                    volumes:
+                      items:
+                        properties:
+                          attributes:
+                            additionalProperties:
+                              type: string
+                            type: object
+                          currentBytesUsed:
+                            type: number
+                          currentSize:
+                            type: number
+                          driver:
+                            type: string
+                          index:
+                            type: number
+                          iops:
+                            type: number
+                          lifecycle:
+                            type: string
+                          oldStorageDeviceIds:
+                            items:
+                              type: string
+                            type: array
+                          resourceName:
+                            type: string
+                          storageDeviceId:
+                            type: string
+                          throughput:
+                            type: number
+                          volumeSnapshots:
+                            items:
+                              properties:
+                                created:
+                                  type: string
+                                expires:
+                                  type: string
+                                id:
+                                  type: string
+                                name:
+                                  type: string
+                                size:
+                                  type: number
+                                tags:
+                                  items:
+                                    additionalProperties:
+                                      type: string
+                                    type: object
+                                  type: array
+                              type: object
+                            type: array
+                        type: object
+                      type: array
+                  type: object
+                type: array
+              operator:
+                properties:
+                  lastSyncedGeneration:
+                    type: number
+                type: object
+              parentId:
+                type: string
+              phase:
+                type: string
+              usedByWorkload:
+                type: string
+              workloadLinks:
+                items:
+                  type: string
+                type: array
+            type: object
+          tags:
+            additionalProperties:
+              type: string
+            type: object
+          version:
+            type: number
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}
+

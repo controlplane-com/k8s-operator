@@ -1,0 +1,160 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  creationTimestamp: null
+  name: controlplane-operator-crds
+rules:
+- apiGroups:
+  - cpln.io
+  resources:
+  - agents
+  - agents/status
+  verbs:
+  - '*'
+- apiGroups:
+  - cpln.io
+  resources:
+  - auditcontexts
+  - auditcontexts/status
+  verbs:
+  - '*'
+- apiGroups:
+  - cpln.io
+  resources:
+  - cloudaccounts
+  - cloudaccounts/status
+  verbs:
+  - '*'
+- apiGroups:
+  - cpln.io
+  resources:
+  - containerstatuses
+  - containerstatuses/status
+  verbs:
+  - '*'
+- apiGroups:
+  - cpln.io
+  resources:
+  - deployments
+  - deployments/status
+  verbs:
+  - '*'
+- apiGroups:
+  - cpln.io
+  resources:
+  - deploymentversions
+  - deploymentversions/status
+  verbs:
+  - '*'
+- apiGroups:
+  - cpln.io
+  resources:
+  - domains
+  - domains/status
+  verbs:
+  - '*'
+- apiGroups:
+  - cpln.io
+  resources:
+  - groups
+  - groups/status
+  verbs:
+  - '*'
+- apiGroups:
+  - cpln.io
+  resources:
+  - gvcs
+  - gvcs/status
+  verbs:
+  - '*'
+- apiGroups:
+  - cpln.io
+  resources:
+  - identities
+  - identities/status
+  verbs:
+  - '*'
+- apiGroups:
+  - cpln.io
+  resources:
+  - images
+  - images/status
+  verbs:
+  - '*'
+- apiGroups:
+  - cpln.io
+  resources:
+  - ipsets
+  - ipsets/status
+  verbs:
+  - '*'
+- apiGroups:
+  - cpln.io
+  resources:
+  - jobexecutionstatuses
+  - jobexecutionstatuses/status
+  verbs:
+  - '*'
+- apiGroups:
+  - cpln.io
+  resources:
+  - locations
+  - locations/status
+  verbs:
+  - '*'
+- apiGroups:
+  - cpln.io
+  resources:
+  - mk8sclusters
+  - mk8sclusters/status
+  verbs:
+  - '*'
+- apiGroups:
+  - cpln.io
+  resources:
+  - orgs
+  - orgs/status
+  verbs:
+  - '*'
+- apiGroups:
+  - cpln.io
+  resources:
+  - policies
+  - policies/status
+  verbs:
+  - '*'
+- apiGroups:
+  - cpln.io
+  resources:
+  - secrets
+  - secrets/status
+  verbs:
+  - '*'
+- apiGroups:
+  - cpln.io
+  resources:
+  - serviceaccounts
+  - serviceaccounts/status
+  verbs:
+  - '*'
+- apiGroups:
+  - cpln.io
+  resources:
+  - users
+  - users/status
+  verbs:
+  - '*'
+- apiGroups:
+  - cpln.io
+  resources:
+  - volumesets
+  - volumesets/status
+  verbs:
+  - '*'
+- apiGroups:
+  - cpln.io
+  resources:
+  - workloads
+  - workloads/status
+  verbs:
+  - '*'

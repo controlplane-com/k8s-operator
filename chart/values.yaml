@@ -1,0 +1,4 @@
+image: gcr.io/cpln-build/cpln-operator:v0.0.1-kc-1
+env:
+  CPLN_API_URL: https://api.test.cpln.io
+  WEBHOOK_PORT: 9443

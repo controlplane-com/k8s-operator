@@ -1,0 +1,254 @@
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: identities.cpln.io
+spec:
+  group: cpln.io
+  names:
+    kind: identity
+    plural: identities
+  scope: Namespaced
+  versions:
+  - name: v1
+    schema:
+      openAPIV3Schema:
+        properties:
+          aws:
+            properties:
+              cloudAccountLink:
+                type: string
+              policyRefs:
+                items:
+                  type: string
+                type: array
+              roleName:
+                type: string
+              trustPolicy:
+                properties:
+                  statement:
+                    items:
+                      additionalProperties:
+                        type: string
+                      type: object
+                    type: array
+                  version:
+                    type: string
+                type: object
+            type: object
+          azure:
+            properties:
+              cloudAccountLink:
+                type: string
+              roleAssignments:
+                items:
+                  properties:
+                    roles:
+                      items:
+                        type: string
+                      type: array
+                    scope:
+                      type: string
+                  type: object
+                type: array
+            type: object
+          created:
+            type: string
+          description:
+            type: string
+          gcp:
+            properties:
+              bindings:
+                items:
+                  properties:
+                    resource:
+                      type: string
+                    roles:
+                      items:
+                        type: string
+                      type: array
+                  type: object
+                type: array
+              cloudAccountLink:
+                type: string
+              scopes:
+                items:
+                  type: string
+                type: array
+              serviceAccount:
+                type: string
+            type: object
+          gvc:
+            type: string
+          id:
+            type: string
+          kind:
+            type: string
+          lastModified:
+            type: string
+          links:
+            items:
+              properties:
+                href:
+                  type: string
+                rel:
+                  type: string
+              type: object
+            type: array
+          memcacheAccess:
+            items:
+              properties:
+                clusterLink:
+                  type: string
+                role:
+                  type: string
+              type: object
+            type: array
+          name:
+            type: string
+          nativeNetworkResources:
+            items:
+              properties:
+                awsPrivateLink:
+                  properties:
+                    endpointServiceName:
+                      type: string
+                  type: object
+                fQDN:
+                  type: string
+                gcpServiceConnect:
+                  properties:
+                    targetService:
+                      type: string
+                  type: object
+                name:
+                  type: string
+                ports:
+                  items:
+                    type: number
+                  type: array
+              type: object
+            type: array
+          networkResources:
+            items:
+              properties:
+                agentLink:
+                  type: string
+                fQDN:
+                  type: string
+                iPs:
+                  items:
+                    type: string
+                  type: array
+                name:
+                  type: string
+                ports:
+                  items:
+                    type: number
+                  type: array
+                resolverIP:
+                  type: string
+              type: object
+            type: array
+          ngs:
+            properties:
+              cloudAccountLink:
+                type: string
+              data:
+                type: number
+              payload:
+                type: number
+              pub:
+                properties:
+                  allow:
+                    items:
+                      type: string
+                    type: array
+                  deny:
+                    items:
+                      type: string
+                    type: array
+                type: object
+              resp:
+                properties:
+                  max:
+                    type: number
+                  ttl:
+                    type: string
+                type: object
+              sub:
+                properties:
+                  allow:
+                    items:
+                      type: string
+                    type: array
+                  deny:
+                    items:
+                      type: string
+                    type: array
+                type: object
+              subs:
+                type: number
+            type: object
+          spicedbAccess:
+            items:
+              properties:
+                clusterLink:
+                  type: string
+                role:
+                  type: string
+              type: object
+            type: array
+          status:
+            properties:
+              aws:
+                properties:
+                  lastError:
+                    type: string
+                  usable:
+                    type: boolean
+                type: object
+              azure:
+                properties:
+                  lastError:
+                    type: string
+                  usable:
+                    type: boolean
+                type: object
+              conditions:
+                items:
+                  properties:
+                    status:
+                      type: string
+                    type:
+                      type: string
+                  type: object
+                type: array
+              gcp:
+                properties:
+                  lastError:
+                    type: string
+                  usable:
+                    type: boolean
+                type: object
+              objectName:
+                type: string
+              operator:
+                properties:
+                  lastSyncedGeneration:
+                    type: number
+                type: object
+              phase:
+                type: string
+            type: object
+          tags:
+            additionalProperties:
+              type: string
+            type: object
+          version:
+            type: number
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}
+

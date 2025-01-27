@@ -1,0 +1,22 @@
+apiVersion: v2
+name: Control Plane Operator
+description: A Helm chart for the Control Plane Kubernetes Operator
+type: application
+version: 0.1.0
+
+maintainers:
+  - name: Kyle Cupp
+    email: kyle@controlplane.com
+
+sources:
+  - https://github.com/controlplane-com/k8s-operator
+
+keywords:
+  - go
+  - Control Plane
+  - helm
+
+dependencies: [ ]
+
+annotations:
+  category: Helm Chart

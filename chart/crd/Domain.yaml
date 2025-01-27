@@ -1,0 +1,194 @@
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: domains.cpln.io
+spec:
+  group: cpln.io
+  names:
+    kind: domain
+    plural: domains
+  scope: Namespaced
+  versions:
+  - name: v1
+    schema:
+      openAPIV3Schema:
+        properties:
+          created:
+            type: string
+          description:
+            type: string
+          id:
+            type: string
+          kind:
+            type: string
+          lastModified:
+            type: string
+          links:
+            items:
+              properties:
+                href:
+                  type: string
+                rel:
+                  type: string
+              type: object
+            type: array
+          name:
+            type: string
+          spec:
+            properties:
+              acceptAllHosts:
+                type: boolean
+              dnsMode:
+                type: string
+              gvcLink:
+                type: string
+              ports:
+                items:
+                  properties:
+                    cors:
+                      properties:
+                        allowCredentials:
+                          type: boolean
+                        allowHeaders:
+                          items:
+                            type: string
+                          type: array
+                        allowMethods:
+                          items:
+                            type: string
+                          type: array
+                        allowOrigins:
+                          items:
+                            properties:
+                              exact:
+                                type: string
+                            type: object
+                          type: array
+                        exposeHeaders:
+                          items:
+                            type: string
+                          type: array
+                        maxAge:
+                          type: string
+                      type: object
+                    number:
+                      type: number
+                    protocol:
+                      type: string
+                    routes:
+                      items:
+                        properties:
+                          headers:
+                            properties:
+                              request:
+                                properties:
+                                  set:
+                                    additionalProperties:
+                                      type: string
+                                    type: object
+                                type: object
+                            type: object
+                          hostPrefix:
+                            type: string
+                          port:
+                            type: number
+                          prefix:
+                            type: string
+                          regex:
+                            type: string
+                          replacePrefix:
+                            type: string
+                          workloadLink:
+                            type: string
+                        type: object
+                      type: array
+                    tls:
+                      properties:
+                        cipherSuites:
+                          items:
+                            type: string
+                          type: array
+                        clientCertificate:
+                          properties:
+                            secretLink:
+                              type: string
+                          type: object
+                        minProtocolVersion:
+                          type: string
+                        serverCertificate:
+                          properties:
+                            secretLink:
+                              type: string
+                          type: object
+                      type: object
+                  type: object
+                type: array
+            type: object
+          status:
+            properties:
+              conditions:
+                items:
+                  properties:
+                    status:
+                      type: string
+                    type:
+                      type: string
+                  type: object
+                type: array
+              dnsConfig:
+                items:
+                  properties:
+                    host:
+                      type: string
+                    ttl:
+                      type: number
+                    type:
+                      type: string
+                    value:
+                      type: string
+                  type: object
+                type: array
+              endpoints:
+                items:
+                  properties:
+                    url:
+                      type: string
+                    workloadLink:
+                      type: string
+                  type: object
+                type: array
+              fingerprint:
+                type: string
+              locations:
+                items:
+                  properties:
+                    certificateStatus:
+                      type: string
+                    name:
+                      type: string
+                  type: object
+                type: array
+              operator:
+                properties:
+                  lastSyncedGeneration:
+                    type: number
+                type: object
+              phase:
+                type: string
+              status:
+                type: string
+              warning:
+                type: string
+            type: object
+          tags:
+            additionalProperties:
+              type: string
+            type: object
+          version:
+            type: number
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}
+

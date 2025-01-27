@@ -1,0 +1,1027 @@
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: mk8sclusters.cpln.io
+spec:
+  group: cpln.io
+  names:
+    kind: mk8scluster
+    plural: mk8sclusters
+  scope: Namespaced
+  versions:
+  - name: v1
+    schema:
+      openAPIV3Schema:
+        properties:
+          alias:
+            type: string
+          created:
+            type: string
+          description:
+            type: string
+          id:
+            type: string
+          kind:
+            type: string
+          lastModified:
+            type: string
+          links:
+            items:
+              properties:
+                href:
+                  type: string
+                rel:
+                  type: string
+              type: object
+            type: array
+          name:
+            type: string
+          spec:
+            properties:
+              addOns:
+                properties:
+                  awsECR:
+                    properties:
+                      roleArn:
+                        type: string
+                    type: object
+                  awsEFS:
+                    properties:
+                      roleArn:
+                        type: string
+                    type: object
+                  awsELB:
+                    properties:
+                      roleArn:
+                        type: string
+                    type: object
+                  awsWorkloadIdentity:
+                    type: object
+                  azureACR:
+                    properties:
+                      clientId:
+                        type: string
+                    type: object
+                  azureWorkloadIdentity:
+                    properties:
+                      tenantId:
+                        type: string
+                    type: object
+                  dashboard:
+                    type: object
+                  localPathStorage:
+                    type: object
+                  logs:
+                    properties:
+                      auditEnabled:
+                        type: boolean
+                      excludeNamespaces:
+                        type: string
+                      includeNamespaces:
+                        type: string
+                    type: object
+                  metrics:
+                    properties:
+                      apiserver:
+                        type: boolean
+                      cadvisor:
+                        type: boolean
+                      coreDns:
+                        type: boolean
+                      kubeState:
+                        type: boolean
+                      kubelet:
+                        type: boolean
+                      nodeExporter:
+                        type: boolean
+                      scrapeAnnotated:
+                        properties:
+                          excludeNamespaces:
+                            type: string
+                          includeNamespaces:
+                            type: string
+                          intervalSeconds:
+                            type: number
+                          retainLabels:
+                            type: string
+                        type: object
+                    type: object
+                  nvidia:
+                    properties:
+                      taintGPUNodes:
+                        type: boolean
+                    type: object
+                  sysbox:
+                    type: object
+                type: object
+              firewall:
+                items:
+                  properties:
+                    description:
+                      type: string
+                    sourceCIDR:
+                      type: string
+                  type: object
+                type: array
+              provider:
+                properties:
+                  aws:
+                    properties:
+                      autoscaler:
+                        properties:
+                          expander:
+                            items:
+                              type: string
+                            type: array
+                          unneededTime:
+                            type: string
+                          unreadyTime:
+                            type: string
+                          utilizationThreshold:
+                            type: number
+                        type: object
+                      awsTags:
+                        additionalProperties:
+                          type: string
+                        type: object
+                      deployRoleArn:
+                        type: string
+                      deployRoleChain:
+                        items:
+                          properties:
+                            externalId:
+                              type: string
+                            roleArn:
+                              type: string
+                            sessionNamePrefix:
+                              type: string
+                          type: object
+                        type: array
+                      diskEncryptionKeyArn:
+                        type: string
+                      extraNodePolicies:
+                        items:
+                          type: string
+                        type: array
+                      image:
+                        properties:
+                          exact:
+                            type: string
+                          recommended:
+                            type: string
+                        type: object
+                      keyPair:
+                        type: string
+                      networking:
+                        properties:
+                          podNetwork:
+                            type: string
+                          serviceNetwork:
+                            type: string
+                        type: object
+                      nodePools:
+                        items:
+                          properties:
+                            bootDiskSize:
+                              type: number
+                            extraSecurityGroupIds:
+                              items:
+                                type: string
+                              type: array
+                            instanceTypes:
+                              items:
+                                type: string
+                              type: array
+                            labels:
+                              additionalProperties:
+                                type: string
+                              type: object
+                            maxSize:
+                              type: number
+                            minSize:
+                              type: number
+                            name:
+                              type: string
+                            onDemandBaseCapacity:
+                              type: number
+                            onDemandPercentageAboveBaseCapacity:
+                              type: number
+                            overrideImage:
+                              properties:
+                                exact:
+                                  type: string
+                                recommended:
+                                  type: string
+                              type: object
+                            spotAllocationStrategy:
+                              type: string
+                            subnetIds:
+                              items:
+                                type: string
+                              type: array
+                            taints:
+                              items:
+                                properties:
+                                  effect:
+                                    type: string
+                                  key:
+                                    type: string
+                                  value:
+                                    type: string
+                                type: object
+                              type: array
+                          type: object
+                        type: array
+                      preInstallScript:
+                        type: string
+                      region:
+                        type: string
+                      securityGroupIds:
+                        items:
+                          type: string
+                        type: array
+                      skipCreateRoles:
+                        type: boolean
+                      vpcId:
+                        type: string
+                    type: object
+                  digitalocean:
+                    properties:
+                      autoscaler:
+                        properties:
+                          expander:
+                            items:
+                              type: string
+                            type: array
+                          unneededTime:
+                            type: string
+                          unreadyTime:
+                            type: string
+                          utilizationThreshold:
+                            type: number
+                        type: object
+                      digitalOceanTags:
+                        items:
+                          type: string
+                        type: array
+                      extraSshKeys:
+                        items:
+                          type: string
+                        type: array
+                      image:
+                        type: string
+                      networking:
+                        properties:
+                          podNetwork:
+                            type: string
+                          serviceNetwork:
+                            type: string
+                        type: object
+                      nodePools:
+                        items:
+                          properties:
+                            dropletSize:
+                              type: string
+                            labels:
+                              additionalProperties:
+                                type: string
+                              type: object
+                            maxSize:
+                              type: number
+                            minSize:
+                              type: number
+                            name:
+                              type: string
+                            overrideImage:
+                              type: string
+                            taints:
+                              items:
+                                properties:
+                                  effect:
+                                    type: string
+                                  key:
+                                    type: string
+                                  value:
+                                    type: string
+                                type: object
+                              type: array
+                          type: object
+                        type: array
+                      preInstallScript:
+                        type: string
+                      region:
+                        type: string
+                      reservedIPs:
+                        items:
+                          type: string
+                        type: array
+                      sshKeys:
+                        items:
+                          type: string
+                        type: array
+                      tokenSecretLink:
+                        type: string
+                      vpcId:
+                        type: string
+                    type: object
+                  ephemeral:
+                    properties:
+                      location:
+                        type: string
+                      nodePools:
+                        items:
+                          properties:
+                            arch:
+                              type: string
+                            count:
+                              type: number
+                            cpu:
+                              type: string
+                            flavor:
+                              type: string
+                            labels:
+                              additionalProperties:
+                                type: string
+                              type: object
+                            memory:
+                              type: string
+                            name:
+                              type: string
+                            taints:
+                              items:
+                                properties:
+                                  effect:
+                                    type: string
+                                  key:
+                                    type: string
+                                  value:
+                                    type: string
+                                type: object
+                              type: array
+                          type: object
+                        type: array
+                    type: object
+                  generic:
+                    properties:
+                      location:
+                        type: string
+                      networking:
+                        properties:
+                          podNetwork:
+                            type: string
+                          serviceNetwork:
+                            type: string
+                        type: object
+                      nodePools:
+                        items:
+                          properties:
+                            labels:
+                              additionalProperties:
+                                type: string
+                              type: object
+                            name:
+                              type: string
+                            taints:
+                              items:
+                                properties:
+                                  effect:
+                                    type: string
+                                  key:
+                                    type: string
+                                  value:
+                                    type: string
+                                type: object
+                              type: array
+                          type: object
+                        type: array
+                    type: object
+                  hetzner:
+                    properties:
+                      autoscaler:
+                        properties:
+                          expander:
+                            items:
+                              type: string
+                            type: array
+                          unneededTime:
+                            type: string
+                          unreadyTime:
+                            type: string
+                          utilizationThreshold:
+                            type: number
+                        type: object
+                      dedicatedServerNodePools:
+                        items:
+                          properties:
+                            labels:
+                              additionalProperties:
+                                type: string
+                              type: object
+                            name:
+                              type: string
+                            taints:
+                              items:
+                                properties:
+                                  effect:
+                                    type: string
+                                  key:
+                                    type: string
+                                  value:
+                                    type: string
+                                type: object
+                              type: array
+                          type: object
+                        type: array
+                      firewallId:
+                        type: string
+                      floatingIPSelector:
+                        additionalProperties:
+                          type: string
+                        type: object
+                      hetznerLabels:
+                        additionalProperties:
+                          type: string
+                        type: object
+                      image:
+                        type: string
+                      networkId:
+                        type: string
+                      networking:
+                        properties:
+                          podNetwork:
+                            type: string
+                          serviceNetwork:
+                            type: string
+                        type: object
+                      nodePools:
+                        items:
+                          properties:
+                            labels:
+                              additionalProperties:
+                                type: string
+                              type: object
+                            maxSize:
+                              type: number
+                            minSize:
+                              type: number
+                            name:
+                              type: string
+                            overrideImage:
+                              type: string
+                            serverType:
+                              type: string
+                            taints:
+                              items:
+                                properties:
+                                  effect:
+                                    type: string
+                                  key:
+                                    type: string
+                                  value:
+                                    type: string
+                                type: object
+                              type: array
+                          type: object
+                        type: array
+                      preInstallScript:
+                        type: string
+                      region:
+                        type: string
+                      sshKey:
+                        type: string
+                      tokenSecretLink:
+                        type: string
+                    type: object
+                  lambdalabs:
+                    properties:
+                      autoscaler:
+                        properties:
+                          expander:
+                            items:
+                              type: string
+                            type: array
+                          unneededTime:
+                            type: string
+                          unreadyTime:
+                            type: string
+                          utilizationThreshold:
+                            type: number
+                        type: object
+                      fileSystems:
+                        items:
+                          type: string
+                        type: array
+                      nodePools:
+                        items:
+                          properties:
+                            instanceType:
+                              type: string
+                            labels:
+                              additionalProperties:
+                                type: string
+                              type: object
+                            maxSize:
+                              type: number
+                            minSize:
+                              type: number
+                            name:
+                              type: string
+                            taints:
+                              items:
+                                properties:
+                                  effect:
+                                    type: string
+                                  key:
+                                    type: string
+                                  value:
+                                    type: string
+                                type: object
+                              type: array
+                          type: object
+                        type: array
+                      preInstallScript:
+                        type: string
+                      region:
+                        type: string
+                      sshKey:
+                        type: string
+                      tokenSecretLink:
+                        type: string
+                      unmanagedNodePools:
+                        items:
+                          properties:
+                            labels:
+                              additionalProperties:
+                                type: string
+                              type: object
+                            name:
+                              type: string
+                            taints:
+                              items:
+                                properties:
+                                  effect:
+                                    type: string
+                                  key:
+                                    type: string
+                                  value:
+                                    type: string
+                                type: object
+                              type: array
+                          type: object
+                        type: array
+                    type: object
+                  linode:
+                    properties:
+                      authorizedKeys:
+                        items:
+                          type: string
+                        type: array
+                      authorizedUsers:
+                        items:
+                          type: string
+                        type: array
+                      autoscaler:
+                        properties:
+                          expander:
+                            items:
+                              type: string
+                            type: array
+                          unneededTime:
+                            type: string
+                          unreadyTime:
+                            type: string
+                          utilizationThreshold:
+                            type: number
+                        type: object
+                      firewallId:
+                        type: string
+                      image:
+                        type: string
+                      networking:
+                        properties:
+                          podNetwork:
+                            type: string
+                          serviceNetwork:
+                            type: string
+                        type: object
+                      nodePools:
+                        items:
+                          properties:
+                            labels:
+                              additionalProperties:
+                                type: string
+                              type: object
+                            maxSize:
+                              type: number
+                            minSize:
+                              type: number
+                            name:
+                              type: string
+                            overrideImage:
+                              type: string
+                            serverType:
+                              type: string
+                            subnetId:
+                              type: string
+                            taints:
+                              items:
+                                properties:
+                                  effect:
+                                    type: string
+                                  key:
+                                    type: string
+                                  value:
+                                    type: string
+                                type: object
+                              type: array
+                          type: object
+                        type: array
+                      preInstallScript:
+                        type: string
+                      region:
+                        type: string
+                      tokenSecretLink:
+                        type: string
+                      vpcId:
+                        type: string
+                    type: object
+                  oblivus:
+                    properties:
+                      autoscaler:
+                        properties:
+                          expander:
+                            items:
+                              type: string
+                            type: array
+                          unneededTime:
+                            type: string
+                          unreadyTime:
+                            type: string
+                          utilizationThreshold:
+                            type: number
+                        type: object
+                      datacenter:
+                        type: string
+                      nodePools:
+                        items:
+                          properties:
+                            flavor:
+                              type: string
+                            labels:
+                              additionalProperties:
+                                type: string
+                              type: object
+                            maxSize:
+                              type: number
+                            minSize:
+                              type: number
+                            name:
+                              type: string
+                            taints:
+                              items:
+                                properties:
+                                  effect:
+                                    type: string
+                                  key:
+                                    type: string
+                                  value:
+                                    type: string
+                                type: object
+                              type: array
+                          type: object
+                        type: array
+                      preInstallScript:
+                        type: string
+                      sshKeys:
+                        items:
+                          type: string
+                        type: array
+                      tokenSecretLink:
+                        type: string
+                      unmanagedNodePools:
+                        items:
+                          properties:
+                            labels:
+                              additionalProperties:
+                                type: string
+                              type: object
+                            name:
+                              type: string
+                            taints:
+                              items:
+                                properties:
+                                  effect:
+                                    type: string
+                                  key:
+                                    type: string
+                                  value:
+                                    type: string
+                                type: object
+                              type: array
+                          type: object
+                        type: array
+                    type: object
+                  paperspace:
+                    properties:
+                      autoscaler:
+                        properties:
+                          expander:
+                            items:
+                              type: string
+                            type: array
+                          unneededTime:
+                            type: string
+                          unreadyTime:
+                            type: string
+                          utilizationThreshold:
+                            type: number
+                        type: object
+                      networkId:
+                        type: string
+                      nodePools:
+                        items:
+                          properties:
+                            bootDiskSize:
+                              type: number
+                            labels:
+                              additionalProperties:
+                                type: string
+                              type: object
+                            machineType:
+                              type: string
+                            maxSize:
+                              type: number
+                            minSize:
+                              type: number
+                            name:
+                              type: string
+                            publicIpType:
+                              type: string
+                            taints:
+                              items:
+                                properties:
+                                  effect:
+                                    type: string
+                                  key:
+                                    type: string
+                                  value:
+                                    type: string
+                                type: object
+                              type: array
+                          type: object
+                        type: array
+                      preInstallScript:
+                        type: string
+                      region:
+                        type: string
+                      sharedDrives:
+                        items:
+                          type: string
+                        type: array
+                      tokenSecretLink:
+                        type: string
+                      unmanagedNodePools:
+                        items:
+                          properties:
+                            labels:
+                              additionalProperties:
+                                type: string
+                              type: object
+                            name:
+                              type: string
+                            taints:
+                              items:
+                                properties:
+                                  effect:
+                                    type: string
+                                  key:
+                                    type: string
+                                  value:
+                                    type: string
+                                type: object
+                              type: array
+                          type: object
+                        type: array
+                      userIds:
+                        items:
+                          type: string
+                        type: array
+                    type: object
+                  triton:
+                    properties:
+                      autoscaler:
+                        properties:
+                          expander:
+                            items:
+                              type: string
+                            type: array
+                          unneededTime:
+                            type: string
+                          unreadyTime:
+                            type: string
+                          utilizationThreshold:
+                            type: number
+                        type: object
+                      connection:
+                        properties:
+                          account:
+                            type: string
+                          privateKeySecretLink:
+                            type: string
+                          url:
+                            type: string
+                          user:
+                            type: string
+                        type: object
+                      firewallEnabled:
+                        type: boolean
+                      imageId:
+                        type: string
+                      loadBalancer:
+                        properties:
+                          gateway:
+                            type: object
+                          manual:
+                            properties:
+                              cnsInternalDomain:
+                                type: string
+                              cnsPublicDomain:
+                                type: string
+                              count:
+                                type: number
+                              imageId:
+                                type: string
+                              metadata:
+                                additionalProperties:
+                                  type: string
+                                type: object
+                              packageId:
+                                type: string
+                              privateNetworkIds:
+                                items:
+                                  type: string
+                                type: array
+                              publicNetworkId:
+                                type: string
+                              tags:
+                                additionalProperties:
+                                  type: string
+                                type: object
+                            type: object
+                        type: object
+                      location:
+                        type: string
+                      networking:
+                        properties:
+                          podNetwork:
+                            type: string
+                          serviceNetwork:
+                            type: string
+                        type: object
+                      nodePools:
+                        items:
+                          properties:
+                            labels:
+                              additionalProperties:
+                                type: string
+                              type: object
+                            maxSize:
+                              type: number
+                            minSize:
+                              type: number
+                            name:
+                              type: string
+                            overrideImageId:
+                              type: string
+                            packageId:
+                              type: string
+                            privateNetworkIds:
+                              items:
+                                type: string
+                              type: array
+                            publicNetworkId:
+                              type: string
+                            taints:
+                              items:
+                                properties:
+                                  effect:
+                                    type: string
+                                  key:
+                                    type: string
+                                  value:
+                                    type: string
+                                type: object
+                              type: array
+                            tritonTags:
+                              additionalProperties:
+                                type: string
+                              type: object
+                          type: object
+                        type: array
+                      preInstallScript:
+                        type: string
+                      privateNetworkId:
+                        type: string
+                      sshKeys:
+                        items:
+                          type: string
+                        type: array
+                    type: object
+                type: object
+              version:
+                type: string
+            type: object
+          status:
+            properties:
+              addOns:
+                properties:
+                  awsECR:
+                    properties:
+                      trustPolicy:
+                        additionalProperties:
+                          type: string
+                        type: object
+                    type: object
+                  awsEFS:
+                    properties:
+                      trustPolicy:
+                        additionalProperties:
+                          type: string
+                        type: object
+                    type: object
+                  awsELB:
+                    properties:
+                      trustPolicy:
+                        additionalProperties:
+                          type: string
+                        type: object
+                    type: object
+                  awsWorkloadIdentity:
+                    properties:
+                      oidcProviderConfig:
+                        properties:
+                          audience:
+                            type: string
+                          providerUrl:
+                            type: string
+                        type: object
+                      trustPolicy:
+                        additionalProperties:
+                          type: string
+                        type: object
+                    type: object
+                  dashboard:
+                    properties:
+                      url:
+                        type: string
+                    type: object
+                  logs:
+                    properties:
+                      lokiAddress:
+                        type: string
+                    type: object
+                  metrics:
+                    properties:
+                      prometheusEndpoint:
+                        type: string
+                      remoteWriteConfig:
+                        additionalProperties:
+                          type: string
+                        type: object
+                    type: object
+                type: object
+              conditions:
+                items:
+                  properties:
+                    status:
+                      type: string
+                    type:
+                      type: string
+                  type: object
+                type: array
+              homeLocation:
+                type: string
+              oidcProviderUrl:
+                type: string
+              operator:
+                properties:
+                  lastSyncedGeneration:
+                    type: number
+                type: object
+              phase:
+                type: string
+              serverUrl:
+                type: string
+            type: object
+          tags:
+            additionalProperties:
+              type: string
+            type: object
+          version:
+            type: number
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}
+

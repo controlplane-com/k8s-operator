@@ -1,0 +1,169 @@
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: gvcs.cpln.io
+spec:
+  group: cpln.io
+  names:
+    kind: gvc
+    plural: gvcs
+  scope: Namespaced
+  versions:
+  - name: v1
+    schema:
+      openAPIV3Schema:
+        properties:
+          alias:
+            type: string
+          created:
+            type: string
+          description:
+            type: string
+          id:
+            type: string
+          kind:
+            type: string
+          lastModified:
+            type: string
+          links:
+            items:
+              properties:
+                href:
+                  type: string
+                rel:
+                  type: string
+              type: object
+            type: array
+          name:
+            type: string
+          spec:
+            properties:
+              domain:
+                type: string
+              env:
+                items:
+                  properties:
+                    name:
+                      type: string
+                    value:
+                      type: string
+                  type: object
+                type: array
+              loadBalancer:
+                properties:
+                  dedicated:
+                    type: boolean
+                type: object
+              pullSecretLinks:
+                items:
+                  type: string
+                type: array
+              staticPlacement:
+                properties:
+                  locationLinks:
+                    items:
+                      type: string
+                    type: array
+                  locationQuery:
+                    properties:
+                      context:
+                        additionalProperties:
+                          type: string
+                        type: object
+                      fetch:
+                        type: string
+                      kind:
+                        type: string
+                      spec:
+                        properties:
+                          match:
+                            type: string
+                          terms:
+                            items:
+                              properties:
+                                op:
+                                  type: string
+                                property:
+                                  type: string
+                                rel:
+                                  type: string
+                                tag:
+                                  type: string
+                                value:
+                                  type: string
+                              type: object
+                            type: array
+                        type: object
+                    type: object
+                type: object
+              tracing:
+                properties:
+                  customTags:
+                    additionalProperties:
+                      properties:
+                        literal:
+                          properties:
+                            value:
+                              type: string
+                          type: object
+                      type: object
+                    type: object
+                  lightstep:
+                    properties:
+                      credentials:
+                        type: string
+                      endpoint:
+                        type: string
+                    type: object
+                  provider:
+                    properties:
+                      controlplane:
+                        type: object
+                      lightstep:
+                        properties:
+                          credentials:
+                            type: string
+                          endpoint:
+                            type: string
+                        type: object
+                      otel:
+                        properties:
+                          endpoint:
+                            type: string
+                        type: object
+                    type: object
+                  sampling:
+                    type: number
+                type: object
+            type: object
+          status:
+            properties:
+              conditions:
+                items:
+                  properties:
+                    status:
+                      type: string
+                    type:
+                      type: string
+                  type: object
+                type: array
+              operator:
+                properties:
+                  lastSyncedGeneration:
+                    type: number
+                type: object
+              phase:
+                type: string
+            type: object
+          tags:
+            additionalProperties:
+              type: string
+            type: object
+          version:
+            type: number
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}
+

@@ -1,0 +1,420 @@
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: orgs.cpln.io
+spec:
+  group: cpln.io
+  names:
+    kind: org
+    plural: orgs
+  scope: Namespaced
+  versions:
+  - name: v1
+    schema:
+      openAPIV3Schema:
+        properties:
+          created:
+            type: string
+          description:
+            type: string
+          id:
+            type: string
+          kind:
+            type: string
+          lastModified:
+            type: string
+          links:
+            items:
+              properties:
+                href:
+                  type: string
+                rel:
+                  type: string
+              type: object
+            type: array
+          name:
+            type: string
+          spec:
+            properties:
+              authConfig:
+                properties:
+                  domainAutoMembers:
+                    items:
+                      type: string
+                    type: array
+                  samlOnly:
+                    type: boolean
+                type: object
+              extraLogging:
+                items:
+                  properties:
+                    cloudWatch:
+                      properties:
+                        credentials:
+                          type: string
+                        extractFields:
+                          additionalProperties:
+                            type: string
+                          type: object
+                        groupName:
+                          type: string
+                        region:
+                          type: string
+                        retentionDays:
+                          type: number
+                        streamName:
+                          type: string
+                      type: object
+                    coralogix:
+                      properties:
+                        app:
+                          type: string
+                        cluster:
+                          type: string
+                        credentials:
+                          type: string
+                        subsystem:
+                          type: string
+                      type: object
+                    datadog:
+                      properties:
+                        credentials:
+                          type: string
+                        host:
+                          type: string
+                      type: object
+                    elastic:
+                      properties:
+                        aws:
+                          properties:
+                            credentials:
+                              type: string
+                            host:
+                              type: string
+                            index:
+                              type: string
+                            port:
+                              type: number
+                            region:
+                              type: string
+                            type:
+                              type: string
+                          type: object
+                        elasticCloud:
+                          properties:
+                            cloudId:
+                              type: string
+                            credentials:
+                              type: string
+                            index:
+                              type: string
+                            type:
+                              type: string
+                          type: object
+                        generic:
+                          properties:
+                            credentials:
+                              type: string
+                            host:
+                              type: string
+                            index:
+                              type: string
+                            password:
+                              type: string
+                            path:
+                              type: string
+                            port:
+                              type: number
+                            type:
+                              type: string
+                            username:
+                              type: string
+                          type: object
+                      type: object
+                    fluentd:
+                      properties:
+                        host:
+                          type: string
+                        port:
+                          type: number
+                      type: object
+                    logzio:
+                      properties:
+                        credentials:
+                          type: string
+                        listenerHost:
+                          type: string
+                      type: object
+                    s3:
+                      properties:
+                        bucket:
+                          type: string
+                        credentials:
+                          type: string
+                        prefix:
+                          type: string
+                        region:
+                          type: string
+                      type: object
+                    stackdriver:
+                      properties:
+                        credentials:
+                          type: string
+                        location:
+                          type: string
+                      type: object
+                    syslog:
+                      properties:
+                        format:
+                          type: string
+                        host:
+                          type: string
+                        mode:
+                          type: string
+                        port:
+                          type: number
+                        severity:
+                          type: number
+                      type: object
+                  type: object
+                type: array
+              logging:
+                properties:
+                  cloudWatch:
+                    properties:
+                      credentials:
+                        type: string
+                      extractFields:
+                        additionalProperties:
+                          type: string
+                        type: object
+                      groupName:
+                        type: string
+                      region:
+                        type: string
+                      retentionDays:
+                        type: number
+                      streamName:
+                        type: string
+                    type: object
+                  coralogix:
+                    properties:
+                      app:
+                        type: string
+                      cluster:
+                        type: string
+                      credentials:
+                        type: string
+                      subsystem:
+                        type: string
+                    type: object
+                  datadog:
+                    properties:
+                      credentials:
+                        type: string
+                      host:
+                        type: string
+                    type: object
+                  elastic:
+                    properties:
+                      aws:
+                        properties:
+                          credentials:
+                            type: string
+                          host:
+                            type: string
+                          index:
+                            type: string
+                          port:
+                            type: number
+                          region:
+                            type: string
+                          type:
+                            type: string
+                        type: object
+                      elasticCloud:
+                        properties:
+                          cloudId:
+                            type: string
+                          credentials:
+                            type: string
+                          index:
+                            type: string
+                          type:
+                            type: string
+                        type: object
+                      generic:
+                        properties:
+                          credentials:
+                            type: string
+                          host:
+                            type: string
+                          index:
+                            type: string
+                          password:
+                            type: string
+                          path:
+                            type: string
+                          port:
+                            type: number
+                          type:
+                            type: string
+                          username:
+                            type: string
+                        type: object
+                    type: object
+                  fluentd:
+                    properties:
+                      host:
+                        type: string
+                      port:
+                        type: number
+                    type: object
+                  logzio:
+                    properties:
+                      credentials:
+                        type: string
+                      listenerHost:
+                        type: string
+                    type: object
+                  s3:
+                    properties:
+                      bucket:
+                        type: string
+                      credentials:
+                        type: string
+                      prefix:
+                        type: string
+                      region:
+                        type: string
+                    type: object
+                  stackdriver:
+                    properties:
+                      credentials:
+                        type: string
+                      location:
+                        type: string
+                    type: object
+                  syslog:
+                    properties:
+                      format:
+                        type: string
+                      host:
+                        type: string
+                      mode:
+                        type: string
+                      port:
+                        type: number
+                      severity:
+                        type: number
+                    type: object
+                type: object
+              observability:
+                properties:
+                  defaultAlertEmails:
+                    items:
+                      type: string
+                    type: array
+                  logsRetentionDays:
+                    type: number
+                  metricsRetentionDays:
+                    type: number
+                  tracesRetentionDays:
+                    type: number
+                type: object
+              security:
+                properties:
+                  threatDetection:
+                    properties:
+                      enabled:
+                        type: boolean
+                      minimumSeverity:
+                        type: string
+                      syslog:
+                        properties:
+                          host:
+                            type: string
+                          port:
+                            type: number
+                          transport:
+                            type: string
+                        type: object
+                    type: object
+                type: object
+              sessionTimeoutSeconds:
+                type: number
+              tracing:
+                properties:
+                  customTags:
+                    additionalProperties:
+                      properties:
+                        literal:
+                          properties:
+                            value:
+                              type: string
+                          type: object
+                      type: object
+                    type: object
+                  lightstep:
+                    properties:
+                      credentials:
+                        type: string
+                      endpoint:
+                        type: string
+                    type: object
+                  provider:
+                    properties:
+                      controlplane:
+                        type: object
+                      lightstep:
+                        properties:
+                          credentials:
+                            type: string
+                          endpoint:
+                            type: string
+                        type: object
+                      otel:
+                        properties:
+                          endpoint:
+                            type: string
+                        type: object
+                    type: object
+                  sampling:
+                    type: number
+                type: object
+            type: object
+          status:
+            properties:
+              accountLink:
+                type: string
+              active:
+                type: boolean
+              conditions:
+                items:
+                  properties:
+                    status:
+                      type: string
+                    type:
+                      type: string
+                  type: object
+                type: array
+              operator:
+                properties:
+                  lastSyncedGeneration:
+                    type: number
+                type: object
+              phase:
+                type: string
+            type: object
+          tags:
+            additionalProperties:
+              type: string
+            type: object
+          version:
+            type: number
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}
+

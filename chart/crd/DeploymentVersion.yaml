@@ -1,0 +1,87 @@
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: deploymentversions.cpln.io
+spec:
+  group: cpln.io
+  names:
+    kind: deploymentversion
+    plural: deploymentversions
+  scope: Namespaced
+  versions:
+  - name: v1
+    schema:
+      openAPIV3Schema:
+        properties:
+          containers:
+            additionalProperties:
+              properties:
+                image:
+                  type: string
+                message:
+                  type: string
+                name:
+                  type: string
+                ready:
+                  type: boolean
+                resources:
+                  properties:
+                    cpu:
+                      type: number
+                    memory:
+                      type: number
+                    replicas:
+                      type: number
+                    replicasReady:
+                      type: number
+                  type: object
+                restarts:
+                  properties:
+                    count:
+                      type: number
+                    exitCode:
+                      type: number
+                    lastRestartTime:
+                      type: string
+                    reason:
+                      type: string
+                  type: object
+              type: object
+            type: object
+          created:
+            type: string
+          gvc:
+            type: number
+          message:
+            type: string
+          name:
+            type: string
+          ready:
+            type: boolean
+          status:
+            properties:
+              conditions:
+                items:
+                  properties:
+                    status:
+                      type: string
+                    type:
+                      type: string
+                  type: object
+                type: array
+              operator:
+                properties:
+                  lastSyncedGeneration:
+                    type: number
+                type: object
+              phase:
+                type: string
+            type: object
+          workload:
+            type: number
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}
+
