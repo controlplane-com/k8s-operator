@@ -4,7 +4,7 @@ entries:
   - annotations:
       category: Helm Chart
     apiVersion: v2
-    created: "2025-01-31T17:10:38.207314781-05:00"
+    created: "2025-01-31T17:17:49.855518625-05:00"
     description: A Helm chart for the Control Plane Kubernetes Operator
     digest: 46dd833ab5612143da377909aa15f146e71f379f1787fffb94d5fd527f78b60a
     keywords:
@@ -19,6 +19,6 @@ entries:
     - https://github.com/controlplane-com/k8s-operator
     type: application
     urls:
-    - https://controlplane-com.github.io/k8s-operator/chart/cpln-operator-0.1.0.tgz
+    - https://controlplane-com.github.io/k8s-operator/cpln-operator-0.1.0.tgz
     version: 0.1.0
-generated: "2025-01-31T17:10:38.206564253-05:00"
+generated: "2025-01-31T17:17:49.854798811-05:00"
