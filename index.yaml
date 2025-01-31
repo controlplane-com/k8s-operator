@@ -19,6 +19,6 @@ entries:
     - https://github.com/controlplane-com/k8s-operator
     type: application
     urls:
-    - https://controlplane-com.github.io/k8s-operator/cpln-operator-0.1.0.tgz
+    - https://controlplane-com.github.io/k8s-operator/published-charts/cpln-operator-0.1.0.tgz
     version: 0.1.0
 generated: "2025-01-31T17:17:49.854798811-05:00"
