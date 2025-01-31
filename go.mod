@@ -4,7 +4,7 @@ go 1.23.5
 
 require (
 	github.com/controlplane-com/types-go v0.0.1
-	github.com/evanphx/json-patch/v5 v5.9.0
+	github.com/evanphx/json-patch/v5 v5.9.11
 	github.com/go-logr/logr v1.4.2
 	k8s.io/api v0.32.1
 	k8s.io/apimachinery v0.32.1
