@@ -42,7 +42,7 @@ spec:
               containerPort: 9443
           volumeMounts:
             - name: tls-certs
-              mountPath: /cert
+              mountPath: {{ .Values.env.TLS_CERT_DIR }}
               readOnly: true
       volumes:
         - name: tls-certs

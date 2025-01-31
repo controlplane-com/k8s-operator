@@ -36,6 +36,9 @@ spec:
             type: array
           name:
             type: string
+          org:
+            description: The organization that owns the resource
+            type: string
           spec:
             properties:
               domain:
@@ -149,8 +152,19 @@ spec:
                 type: array
               operator:
                 properties:
+                  downstreamOnly:
+                    type: boolean
+                  lastProcessedGeneration:
+                    type: number
+                  lastSyncTime:
+                    format: datetime
+                    type: string
                   lastSyncedGeneration:
                     type: number
+                  syncRetries:
+                    type: number
+                  validationError:
+                    type: string
                 type: object
               phase:
                 type: string
@@ -161,6 +175,8 @@ spec:
             type: object
           version:
             type: number
+        required:
+        - org
         type: object
     served: true
     storage: true

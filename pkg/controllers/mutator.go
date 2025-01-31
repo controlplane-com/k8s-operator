@@ -8,6 +8,7 @@ import (
 	admissionv1 "k8s.io/api/admission/v1"
 	"net/http"
 	"sigs.k8s.io/controller-runtime/pkg/webhook/admission"
+	"slices"
 )
 
 type CrMutator struct {
@@ -22,9 +23,17 @@ func (c CrMutator) Handle(_ context.Context, req admission.Request) admission.Re
 	if err != nil {
 		return admission.Errored(http.StatusBadRequest, fmt.Errorf("could not unmarshal raw object: %v", err))
 	} // We navigate to metadata.finalizers in the unstructured object
+	kind := unstructuredObj["kind"].(string)
+	if slices.Contains(ignoredKinds, kind) {
+		return admission.Allowed("kind is ignored - ignoring")
+	}
 	metadata, ok := unstructuredObj["metadata"].(map[string]interface{})
 	if !ok {
 		return admission.Allowed("no metadata field - ignoring")
+	}
+
+	if metadata["deletionTimestamp"] != nil {
+		return admission.Allowed("resource has been deleted - ignoring")
 	}
 
 	finalizers, ok := metadata["finalizers"].([]interface{})

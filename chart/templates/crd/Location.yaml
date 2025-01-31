@@ -1,12 +1,12 @@
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
-  name: serviceaccounts.cpln.io
+  name: locations.cpln.io
 spec:
   group: cpln.io
   names:
-    kind: serviceaccount
-    plural: serviceaccounts
+    kind: location
+    plural: locations
   scope: Namespaced
   versions:
   - name: v1
@@ -19,19 +19,6 @@ spec:
             type: string
           id:
             type: string
-          keys:
-            items:
-              properties:
-                created:
-                  type: string
-                description:
-                  type: string
-                key:
-                  type: string
-                name:
-                  type: string
-              type: object
-            type: array
           kind:
             type: string
           lastModified:
@@ -47,8 +34,20 @@ spec:
             type: array
           name:
             type: string
+          org:
+            description: The organization that owns the resource
+            type: string
           origin:
             type: string
+          provider:
+            type: string
+          region:
+            type: string
+          spec:
+            properties:
+              enabled:
+                type: boolean
+            type: object
           status:
             properties:
               conditions:
@@ -60,10 +59,40 @@ spec:
                       type: string
                   type: object
                 type: array
+              geo:
+                properties:
+                  city:
+                    type: string
+                  continent:
+                    type: string
+                  country:
+                    type: string
+                  lat:
+                    type: number
+                  lon:
+                    type: number
+                  state:
+                    type: string
+                type: object
+              ipRanges:
+                items:
+                  type: string
+                type: array
               operator:
                 properties:
+                  downstreamOnly:
+                    type: boolean
+                  lastProcessedGeneration:
+                    type: number
+                  lastSyncTime:
+                    format: datetime
+                    type: string
                   lastSyncedGeneration:
                     type: number
+                  syncRetries:
+                    type: number
+                  validationError:
+                    type: string
                 type: object
               phase:
                 type: string
@@ -74,6 +103,8 @@ spec:
             type: object
           version:
             type: number
+        required:
+        - org
         type: object
     served: true
     storage: true

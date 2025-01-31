@@ -1,12 +1,12 @@
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
-  name: groups.cpln.io
+  name: ipsets.cpln.io
 spec:
   group: cpln.io
   names:
-    kind: group
-    plural: groups
+    kind: ipset
+    plural: ipsets
   scope: Namespaced
   versions:
   - name: v1
@@ -19,13 +19,6 @@ spec:
             type: string
           id:
             type: string
-          identityMatcher:
-            properties:
-              expression:
-                type: string
-              language:
-                type: string
-            type: object
           kind:
             type: string
           lastModified:
@@ -39,45 +32,25 @@ spec:
                   type: string
               type: object
             type: array
-          memberLinks:
-            items:
-              type: string
-            type: array
-          memberQuery:
-            properties:
-              context:
-                additionalProperties:
-                  type: string
-                type: object
-              fetch:
-                type: string
-              kind:
-                type: string
-              spec:
-                properties:
-                  match:
-                    type: string
-                  terms:
-                    items:
-                      properties:
-                        op:
-                          type: string
-                        property:
-                          type: string
-                        rel:
-                          type: string
-                        tag:
-                          type: string
-                        value:
-                          type: string
-                      type: object
-                    type: array
-                type: object
-            type: object
           name:
             type: string
-          origin:
+          org:
+            description: The organization that owns the resource
             type: string
+          spec:
+            properties:
+              link:
+                type: string
+              locations:
+                items:
+                  properties:
+                    name:
+                      type: string
+                    retentionPolicy:
+                      type: string
+                  type: object
+                type: array
+            type: object
           status:
             properties:
               conditions:
@@ -89,10 +62,38 @@ spec:
                       type: string
                   type: object
                 type: array
+              error:
+                type: string
+              ipAddresses:
+                items:
+                  properties:
+                    created:
+                      type: string
+                    id:
+                      type: string
+                    ip:
+                      type: string
+                    name:
+                      type: string
+                    state:
+                      type: string
+                  type: object
+                type: array
               operator:
                 properties:
+                  downstreamOnly:
+                    type: boolean
+                  lastProcessedGeneration:
+                    type: number
+                  lastSyncTime:
+                    format: datetime
+                    type: string
                   lastSyncedGeneration:
                     type: number
+                  syncRetries:
+                    type: number
+                  validationError:
+                    type: string
                 type: object
               phase:
                 type: string
@@ -103,6 +104,8 @@ spec:
             type: object
           version:
             type: number
+        required:
+        - org
         type: object
     served: true
     storage: true

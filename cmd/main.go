@@ -17,8 +17,6 @@ import (
 	clientgoscheme "k8s.io/client-go/kubernetes/scheme"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
-	// If you have typed APIs, you’d import them here:
-	// myapiv1 "github.com/example/myproject/api/v1"
 )
 
 // scheme is a global scheme for all known types.
@@ -42,10 +40,8 @@ func main() {
 
 	flag.Parse()
 
-	// Use zap logger (controller-runtime recommended).
 	ctrl.SetLogger(zap.New(zap.UseDevMode(true)))
 
-	// Print version info, helpful for debugging
 	setupLog := ctrl.Log.WithName("setup")
 	setupLog.Info(fmt.Sprintf("Go Version: %s", runtime.Version()))
 	setupLog.Info(fmt.Sprintf("Go OS/Arch: %s/%s", runtime.GOOS, runtime.GOARCH))
@@ -69,13 +65,11 @@ func main() {
 		os.Exit(1)
 	}
 
-	// Create an instance of your controller. E.g.:
 	if err = controllers.BuildControllers(mgr); err != nil {
 		setupLog.Error(err, "Unable to create controller", "controller", "CplnCRDController")
 		os.Exit(1)
 	}
 
-	// (Optional) Add readiness/liveness checks if you want:
 	if err := mgr.AddHealthzCheck("healthz", func(req *http.Request) error {
 		return nil
 	}); err != nil {

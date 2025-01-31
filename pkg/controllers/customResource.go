@@ -10,12 +10,12 @@ import (
 	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"sigs.k8s.io/controller-runtime/pkg/client"
-	"strings"
 )
 
-var k8sBoilerplate = map[string]bool{
+var excludedFields = map[string]bool{
 	"apiVersion": false,
 	"metadata":   false,
+	"org":        false,
 }
 
 func isGvcScoped(kind string) bool {
@@ -31,76 +31,56 @@ func isGvcScoped(kind string) bool {
 	}
 }
 
-func nameToCplnFormat(kind, name string) (string, string, error) {
-	p := strings.Split(name, ".")
-	if !isGvcScoped(kind) {
-		return name, "", nil
+func cplnName(cr *unstructured.Unstructured) string {
+	m, ok := cr.Object["metadata"].(map[string]any)
+	if !ok {
+		return cr.GetName()
 	}
-	if len(p) != 2 {
-		return "", "", fmt.Errorf("invalid name: %s. Name must be of the form {name}.{gvc} for gvc-scoped kinds", name)
+	annotations, ok := m["annotations"].(map[string]any)
+	if !ok {
+		return cr.GetName()
 	}
-	return p[0], p[1], nil
-}
-
-func nameToK8sFormat(kind, name, gvc string) (string, error) {
-	if !isGvcScoped(kind) {
-		return name, nil
+	replacement, ok := annotations["cpln.io/name-replacement"].(string)
+	if !ok {
+		return cr.GetName()
 	}
-	if gvc == "" {
-		return "", fmt.Errorf("gvc is required for kind %s", kind)
-	}
-	return fmt.Sprintf("%s.%s", name, gvc), nil
+	return replacement
 }
 
 func toCplnFormat(cr *unstructured.Unstructured) (map[string]any, error) {
+	crCopy := cr.DeepCopy()
 	//convert metadata into name/gvc
 	//remove all k8s boilerplate
 	cpln := map[string]any{}
-	name, gvc, err := nameToCplnFormat(cr.GetKind(), cr.GetName())
-	if err != nil {
-		return nil, err
-	}
-	cpln["name"] = name
-	cpln["gvc"] = gvc
-	for key, prop := range cr.Object {
-		if keep, ok := k8sBoilerplate[key]; ok && !keep {
+	cpln["name"] = cplnName(crCopy)
+	for key, prop := range crCopy.Object {
+		if keep, ok := excludedFields[key]; ok && !keep {
 			continue
 		}
 		cpln[key] = prop
 	}
+	//Status can't be touched by users
+	delete(cpln, "status")
 	return cpln, nil
 }
 
-func toK8sFormat(template *unstructured.Unstructured, cpln map[string]any) (*unstructured.Unstructured, error) {
+func toK8sFormat(template *unstructured.Unstructured, org string, gvc string, cpln map[string]any) (*unstructured.Unstructured, error) {
 	//convert name/gvc into metadata name and namespace
 	//add k8s boilerplate
-
-	name, ok := cpln["name"].(string)
-	if !ok {
-		return nil, fmt.Errorf("name is required, and must be a string. Given name: %v", cpln["name"])
-	}
-	kind, ok := cpln["kind"].(string)
-	if !ok {
-		return nil, fmt.Errorf("kind is required, and must be a string. Given name: %v", cpln["name"])
-	}
-	gvc, ok := cpln["gvc"].(string)
-	if !ok {
-		gvc = ""
-	}
-	k8sName, err := nameToK8sFormat(kind, name, gvc)
-	if err != nil {
-		return nil, err
-	}
-
 	cr := &unstructured.Unstructured{
 		Object: map[string]any{},
 	}
 	for key, val := range cpln {
 		cr.Object[key] = val
 	}
+	cr.Object["org"] = org
+	if gvc != "" {
+		cr.Object["gvc"] = gvc
+	}
+	cr.Object["metadata"] = template.Object["metadata"]
 	cr.SetAPIVersion(common.API_VERSION)
 	cr.SetResourceVersion(template.GetResourceVersion())
-	cr.SetName(k8sName)
+	cr.SetKind(template.GetKind())
 	cr.SetNamespace(template.GetNamespace())
 	return cr, nil
 }
@@ -114,11 +94,18 @@ func unstructuredCR(gvk schema.GroupVersionKind, namespace, name string, body an
 	}
 	spec := map[string]any{}
 	err = json.Unmarshal(j, &spec)
+	if name == "" && spec["name"] != nil {
+		name = spec["name"].(string)
+	}
 	if err != nil {
 		return nil, err
 	}
 	obj.Object = spec
 	obj.SetGroupVersionKind(gvk)
+	obj.Object["org"] = parent.Object["org"]
+	if isGvcScoped(gvk.Kind) {
+		obj.Object["gvc"] = parent.Object["gvc"]
+	}
 	obj.SetName(fmt.Sprintf("%s.%s", name, parent.GetName()))
 	obj.SetNamespace(namespace)
 	obj.SetOwnerReferences([]v1.OwnerReference{

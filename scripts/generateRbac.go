@@ -1,4 +1,3 @@
-// scripts/generate_rbac.go
 package main
 
 import (
@@ -14,13 +13,13 @@ import (
 	sigYaml "sigs.k8s.io/yaml" // separate package "sigs.k8s.io/yaml" for marshalling
 )
 
-// GenerateRBAC reads all CRDs in chart/crd, then generates a single
+// GenerateRBAC reads all CRDs in chart/templates/crd, then generates a single
 // ClusterRole that grants get, list, watch on each CRD resource.
 func main() {
-	crdDir := "chart/crd"
+	crdDir := "chart/templates/crd"
 	outputFile := "chart/templates/00-dynamic-rbac.yaml"
 
-	// 1. Read all YAML files in chart/crd
+	// 1. Read all YAML files in chart/templates/crd
 	files, err := os.ReadDir(crdDir)
 	if err != nil {
 		log.Fatalf("Failed to read CRD directory: %v", err)

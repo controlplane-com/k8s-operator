@@ -1,12 +1,12 @@
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
-  name: locations.cpln.io
+  name: cloudaccounts.cpln.io
 spec:
   group: cpln.io
   names:
-    kind: location
-    plural: locations
+    kind: cloudaccount
+    plural: cloudaccounts
   scope: Namespaced
   versions:
   - name: v1
@@ -14,6 +14,8 @@ spec:
       openAPIV3Schema:
         properties:
           created:
+            type: string
+          data:
             type: string
           description:
             type: string
@@ -34,17 +36,11 @@ spec:
             type: array
           name:
             type: string
-          origin:
+          org:
+            description: The organization that owns the resource
             type: string
           provider:
             type: string
-          region:
-            type: string
-          spec:
-            properties:
-              enabled:
-                type: boolean
-            type: object
           status:
             properties:
               conditions:
@@ -56,32 +52,30 @@ spec:
                       type: string
                   type: object
                 type: array
-              geo:
-                properties:
-                  city:
-                    type: string
-                  continent:
-                    type: string
-                  country:
-                    type: string
-                  lat:
-                    type: number
-                  lon:
-                    type: number
-                  state:
-                    type: string
-                type: object
-              ipRanges:
-                items:
-                  type: string
-                type: array
+              lastChecked:
+                type: string
+              lastError:
+                type: string
               operator:
                 properties:
+                  downstreamOnly:
+                    type: boolean
+                  lastProcessedGeneration:
+                    type: number
+                  lastSyncTime:
+                    format: datetime
+                    type: string
                   lastSyncedGeneration:
                     type: number
+                  syncRetries:
+                    type: number
+                  validationError:
+                    type: string
                 type: object
               phase:
                 type: string
+              usable:
+                type: boolean
             type: object
           tags:
             additionalProperties:
@@ -89,6 +83,8 @@ spec:
             type: object
           version:
             type: number
+        required:
+        - org
         type: object
     served: true
     storage: true

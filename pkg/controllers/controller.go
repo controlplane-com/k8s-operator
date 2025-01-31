@@ -1,30 +1,33 @@
 package controllers
 
 import (
-	"bytes"
 	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"github.com/controlplane-com/k8s-operator/pkg/common"
-	"github.com/controlplane-com/types-go/pkg/base"
+	"github.com/controlplane-com/k8s-operator/pkg/realtime"
+	"github.com/controlplane-com/k8s-operator/pkg/websocket"
 	"github.com/controlplane-com/types-go/pkg/deployment"
 	"github.com/evanphx/json-patch/v5"
 	"github.com/go-logr/logr"
-	"io"
 	corev1 "k8s.io/api/core/v1"
+	v1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
 	metav1 "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apimachinery/pkg/types"
+	"k8s.io/apimachinery/pkg/util/yaml"
 	"net/http"
 	"os"
+	"path"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/log"
 	"slices"
 	"strings"
+	"sync"
 	"time"
 )
 
@@ -39,20 +42,36 @@ type CplnCRDController struct {
 var zeroResult = ctrl.Result{}
 
 var defaultResult = ctrl.Result{
-	RequeueAfter: time.Second * 5,
+	RequeueAfter: time.Second * time.Duration(common.GetEnvInt("RECONCILE_INTERVAL_SECONDS", 30)),
 }
 
 var ignoredFields = []string{"version", "gvc", "lastModified"}
-var ignoredKinds = []string{"deployment", "deploymentversion", "containerstatus", "jobexecutionstatus"}
-var secret *corev1.Secret
+var ignoredKinds = []string{
+	common.KIND_DEPLOYMENT,
+	common.KIND_DEPLOYMENT_VERSION,
+	common.KIND_CONTAINER_STATUS,
+	common.KIND_JOB_EXECUTION_STATUS,
+	common.KIND_VOLUME_SET_STATUS_LOCATION,
+	common.KIND_PERSISTENT_VOLUME_STATUS,
+	common.KIND_IMAGE,
+	common.KIND_USER,
+}
+var secrets = map[string]*corev1.Secret{}
+var m = &sync.Mutex{}
 
 func BuildControllers(mgr ctrl.Manager) error {
-
+	if !common.GetEnvBool("CONTROLLER_ENABLED", true) {
+		return nil
+	}
+	configuredKinds := common.GetEnvSlice[string]("MANAGE_KINDS", nil)
 	gvks, err := listGVKForCRDs()
 	if err != nil {
 		return err
 	}
 	for _, gvk := range gvks {
+		if configuredKinds != nil && !slices.Contains(configuredKinds, gvk.Kind) {
+			continue
+		}
 		obj := &unstructured.Unstructured{}
 		obj.SetGroupVersionKind(gvk)
 		url := os.Getenv("CPLN_API_URL")
@@ -75,7 +94,7 @@ func BuildControllers(mgr ctrl.Manager) error {
 
 func listGVKForCRDs() ([]schema.GroupVersionKind, error) {
 	var gvks []schema.GroupVersionKind
-	entries, err := os.ReadDir("chart/crd")
+	entries, err := os.ReadDir("chart/templates/crd")
 	if err != nil {
 		return nil, err
 	}
@@ -85,10 +104,18 @@ func listGVKForCRDs() ([]schema.GroupVersionKind, error) {
 		if slices.Contains(ignoredKinds, kind) {
 			continue
 		}
+		b, err := os.ReadFile(path.Join("chart/templates/crd", e.Name()))
+		if err != nil {
+			return nil, err
+		}
+		var crd v1.CustomResourceDefinition
+		if err = yaml.Unmarshal(b, &crd); err != nil {
+			return nil, err
+		}
 		gvks = append(gvks, schema.GroupVersionKind{
 			Group:   common.API_GROUP,
 			Version: common.API_REVISION,
-			Kind:    kind,
+			Kind:    crd.Spec.Names.Kind,
 		})
 	}
 	return gvks, nil
@@ -97,79 +124,228 @@ func listGVKForCRDs() ([]schema.GroupVersionKind, error) {
 func (r *CplnCRDController) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	l := log.FromContext(ctx)
 
-	cr := &unstructured.Unstructured{}
-	cr.SetGroupVersionKind(r.gvk)
-
-	if err := r.Get(ctx, req.NamespacedName, cr); err != nil {
-		if metav1.IsNotFound(err) {
-			l.Info("CRD resource not found; must have been deleted")
-			return zeroResult, nil
-		}
+	cr, err := r.getCustomResource(ctx, req)
+	if err != nil || cr == nil {
 		return zeroResult, err
 	}
-
-	if secret == nil {
-		secret = &corev1.Secret{}
-		if err := r.Get(ctx, types.NamespacedName{
-			Namespace: req.Namespace,
-			Name:      common.SECRET_NAME,
-		}, secret); err != nil {
-			l.Error(err, "unable to sync resources because the secret %s could not be found", common.SECRET_NAME)
-			os.Exit(1)
-		}
+	org, gvc, err := r.getCplnContext(ctx, req, cr)
+	if err != nil {
+		return zeroResult, err
 	}
-
-	b, orgOK := secret.Data["org"]
-	token, tokenOK := secret.Data["token"]
-	if !orgOK || !tokenOK {
-		// If missing, we can't do anything
-		msg := "secret missing required fields 'org' or 'token'"
-		l.Error(nil, msg)
-		return zeroResult, fmt.Errorf(msg)
+	token, err := r.getSecret(ctx, org)
+	if err != nil {
+		return zeroResult, err
 	}
-	org := string(b)
 
 	md, ok := cr.Object["metadata"].(map[string]any)
 	if !ok {
 		l.Info("CR has no metadata? skipping")
 		return zeroResult, nil
 	}
-	generation, _ := md["generation"].(int64)
 
-	st := getOperatorStatus(cr)
-	cplnLastSynced, _ := st["lastSyncedGeneration"].(int64)
-
-	if r.gvk.Kind == common.KIND_WORKLOAD {
-		syncCtx := newSyncContext(ctx, r.Client)
-		syncCtx.namespace = req.Namespace
-		syncCtx.parent = cr
-		deployments, err := r.getWorkloadDeploymentsFromCpln(ctx, org, string(token), cr)
-		if err != nil && !errors.Is(err, notFoundError) {
-			return zeroResult, err
-		}
-		if err = syncWorkloadDeployments(syncCtx, deployments); err != nil {
-			return zeroResult, err
-		}
+	nextSync, timeUntilSync := timeUntilNextSync(cr)
+	if timeUntilSync > 0 {
+		l.Info(getSyncFailureMessage(nextSync))
+		return ctrl.Result{
+			RequeueAfter: timeUntilSync,
+		}, nil
 	}
 
-	if cplnLastSynced == generation {
-		return r.syncFromCplnToK8s(ctx, l, org, string(token), cr)
+	deletedTimestamp := md["deletionTimestamp"]
+	if deletedTimestamp != nil {
+		return r.handleResourceDeletion(ctx, org, gvc, cr, token, l)
+	}
+
+	if err = r.syncChildren(ctx, req, org, gvc, token, cr); err != nil {
+		return zeroResult, err
+	}
+
+	g := generation(cr)
+	st := operatorStatus(cr)
+	cplnLastSynced, _ := st["lastSyncedGeneration"].(int64)
+	if cplnLastSynced == g {
+		return r.syncFromCplnToK8s(ctx, l, org, gvc, token, cr)
 	} else {
-		return r.syncFromK8sToCpln(ctx, l, org, string(token), cr)
+		return r.syncFromK8sToCpln(ctx, l, org, gvc, token, cr)
 	}
 }
 
-func getOperatorStatus(cr *unstructured.Unstructured) map[string]any {
-	st, ok := cr.Object["status"].(map[string]any)
-	if !ok {
-		st = make(map[string]any)
+func (r *CplnCRDController) handleResourceDeletion(ctx context.Context, org string, gvc string, cr *unstructured.Unstructured, token string, l logr.Logger) (ctrl.Result, error) {
+	if err := r.cleanupSync(org, gvc, cr); err != nil {
+		return zeroResult, err
 	}
-	_, ok = st["operator"].(map[string]any)
-	if !ok {
-		st["operator"] = map[string]any{}
+	if resourcePolicy(cr) != common.RESOURCE_POLICY_KEEP {
+		err := r.deleteFromCpln(ctx, org, gvc, token, cr)
+		if err != nil {
+			l.Error(err, "Failed to delete from Cpln")
+			if errors.Is(err, dependentResourceErr) {
+				return defaultResult, nil
+			}
+			return zeroResult, err
+		}
 	}
-	cr.Object["status"] = st
-	return cr.Object["status"].(map[string]any)["operator"].(map[string]any)
+	if err := r.removeFinalizer(ctx, cr); err != nil {
+		return zeroResult, err
+	}
+	return zeroResult, nil
+}
+
+func (r *CplnCRDController) getCustomResource(ctx context.Context, req ctrl.Request) (*unstructured.Unstructured, error) {
+	l := log.FromContext(ctx)
+	cr := &unstructured.Unstructured{}
+	cr.SetGroupVersionKind(r.gvk)
+
+	if err := r.Get(ctx, req.NamespacedName, cr); err != nil {
+		if metav1.IsNotFound(err) {
+			l.Info("CRD resource not found; must have been deleted")
+			return nil, nil
+		}
+		return nil, err
+	}
+	return cr, nil
+}
+
+func (r *CplnCRDController) cleanupSync(org, gvc string, cr *unstructured.Unstructured) error {
+	switch r.gvk.Kind {
+	case common.KIND_WORKLOAD:
+		return realtime.DeregisterSync(fmt.Sprintf("%s.%s.%s", org, gvc, cr.GetName()))
+	default:
+		return nil
+	}
+}
+
+func (r *CplnCRDController) syncChildren(ctx context.Context, req ctrl.Request, org, gvc, token string, cr *unstructured.Unstructured) error {
+	syncCtx := newSyncContext(ctx, r.Client)
+	syncCtx.namespace = req.Namespace
+	syncCtx.parent = cr
+
+	switch r.gvk.Kind {
+	case common.KIND_WORKLOAD:
+		if err := r.websocketDeploymentSync(org, gvc, token, cr); err != nil {
+			return err
+		}
+		/*
+			deployments, err := r.getWorkloadDeploymentsFromCpln(ctx, org, gvc, token, cr)
+			if err != nil && !errors.Is(err, notFoundError) {
+				return err
+			}
+			if err = syncWorkloadDeployments(syncCtx, deployments); err != nil {
+				return err
+			}
+		*/
+		break
+	case common.KIND_VOLUME_SET:
+		if err := syncVolumeSetStatusLocations(syncCtx, cr); err != nil {
+			return err
+		}
+		break
+	}
+	return nil
+}
+
+func (r *CplnCRDController) websocketDeploymentSync(org string, gvc string, token string, cr *unstructured.Unstructured) error {
+	fullName := fmt.Sprintf("%s.%s.%s", org, gvc, cr.GetName())
+	s := realtime.GetSync(fullName)
+	if s != nil {
+		return nil
+	}
+	ctx := context.Background()
+	url := common.GetEnvStr("CPLN_WORKLOAD_STATUS_URL", "wss://workload-status.cpln.io/register")
+	parent := cr.DeepCopy()
+	l := log.FromContext(ctx)
+	w, err := websocket.NewClient(ctx, l, url, token, time.Second*5, func(message []byte) error {
+		syncCtx := newSyncContext(ctx, r.Client)
+		if err := r.verifyParent(ctx, parent); err != nil {
+			return nil
+		}
+		syncCtx.parent = parent
+		syncCtx.namespace = parent.GetNamespace()
+		deployments, err := r.getWorkloadDeploymentsFromCpln(ctx, org, gvc, token, parent)
+		if err != nil {
+			l.Error(err, "Failed to get deployments from Cpln")
+			return nil
+		}
+		return syncWorkloadDeployments(syncCtx, deployments)
+	})
+	if err != nil {
+		return err
+	}
+	realtime.RegisterSync(fullName, w)
+	return registerInterest(w, token, Interest{
+		Org:      org,
+		Gvc:      gvc,
+		Workload: cr.GetName(),
+	})
+}
+
+func registerInterest(w websocket.Client, token string, interest Interest) error {
+	b, err := json.Marshal(RegisterInterestRequest{
+		Token:     token,
+		Interests: []Interest{interest},
+	})
+	if err != nil {
+		return err
+	}
+	return w.Send(b)
+}
+
+func (r *CplnCRDController) verifyParent(ctx context.Context, parent *unstructured.Unstructured) error {
+	l := log.FromContext(ctx)
+	var currentParent unstructured.Unstructured
+	currentParent.SetGroupVersionKind(parent.GroupVersionKind())
+	//For safety, verify that the parent the websocket client was configured with still matches the one in the cluster
+	if err := r.Client.Get(ctx, client.ObjectKey{Namespace: parent.GetNamespace(), Name: parent.GetName()}, &currentParent); err != nil {
+		//Do nothing. Can't verify parent identity
+		l.Error(err, "Failed to get parent")
+		return err
+	}
+	if parent.GetUID() != currentParent.GetUID() {
+		err := errors.New("parent UID has changed. Ignoring deployments")
+		l.Error(err, "")
+		return err
+	}
+	return nil
+}
+
+func parseDeployment(message []byte) (*deployment.Deployment, error) {
+	event := &realtime.Message[deployment.Deployment]{}
+	err := json.Unmarshal(message, event)
+	var d deployment.Deployment
+	if err != nil || event.Id == "" {
+		err = json.Unmarshal(message, &d)
+		if err != nil {
+			return nil, err
+		}
+	} else {
+		d = event.Data
+	}
+	return &d, nil
+}
+
+func (r *CplnCRDController) getSecret(ctx context.Context, org string) (string, error) {
+	m.Lock()
+	defer m.Unlock()
+	l := log.FromContext(ctx)
+	secret, _ := secrets[org]
+	if secret == nil {
+		secret = &corev1.Secret{}
+		if err := r.Get(ctx, types.NamespacedName{
+			Namespace: "controlplane",
+			Name:      fmt.Sprintf("%s", org),
+		}, secret); err != nil {
+			return "", fmt.Errorf("unable to sync resources because the secret %s could not be found. Details: %v", org, err)
+		}
+		secrets[org] = secret
+	}
+
+	token := string(secret.Data["token"])
+	if token == "" {
+		// If missing, we can't do anything
+		msg := "secret missing required field: token'"
+		l.Error(nil, msg)
+		return "", fmt.Errorf(msg)
+	}
+	return token, nil
 }
 
 // updateCRDSpec is a simple method to update the CRD's spec (unstructured).
@@ -177,155 +353,10 @@ func (r *CplnCRDController) updateCRDSpec(ctx context.Context, crdObj *unstructu
 	return r.Client.Update(ctx, crdObj)
 }
 
-func (r *CplnCRDController) updateCrStatus(ctx context.Context, cr *unstructured.Unstructured, newStatus any) error {
-	md, _ := cr.Object["metadata"].(map[string]any)
-	g, _ := md["generation"].(int64)
-
-	operatorStatus := getOperatorStatus(cr)
-	operatorStatus["lastSyncedGeneration"] = g
-	st := cr.Object["status"].(map[string]any)
-	if m, ok := newStatus.(map[string]any); ok {
-		for k, v := range m {
-			if k == "operator" {
-				continue
-			}
-			st[k] = v
-		}
-	}
-	return r.Client.Status().Update(ctx, cr)
-}
-
-var notFoundError = fmt.Errorf("cpln resource not found")
-
-func (r *CplnCRDController) getWorkloadDeploymentsFromCpln(ctx context.Context, org, token string, crdObj *unstructured.Unstructured) ([]deployment.Deployment, error) {
-	url, err := r.getCplnResourceUrl(org, crdObj)
-	if err != nil {
-		return nil, err
-	}
-	url = fmt.Sprintf("%s/%s", url, "deployment")
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
-	if err != nil {
-		return nil, err
-	}
-	req.Header.Set("Authorization", "Bearer "+token)
-
-	c := r.HttpClient
-	if c == nil {
-		c = http.DefaultClient
-	}
-	resp, err := c.Do(req)
-	if err != nil {
-		return nil, err
-	}
-	defer func() { _ = resp.Body.Close() }()
-
-	if resp.StatusCode == http.StatusNotFound {
-		return nil, notFoundError
-	}
-	if resp.StatusCode >= 300 {
-		body, _ := io.ReadAll(resp.Body)
-		return nil, fmt.Errorf("GET %s -> status %d: %s", url, resp.StatusCode, string(body))
-	}
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return nil, err
-	}
-	var deployments base.GenericList[deployment.Deployment]
-	return deployments.Items, json.Unmarshal(body, &deployments)
-}
-
-func (r *CplnCRDController) fetchCplnResource(ctx context.Context, org, token string, crdObj *unstructured.Unstructured) ([]byte, error) {
-	url, err := r.getCplnResourceUrl(org, crdObj)
-	if err != nil {
-		return nil, err
-	}
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
-	if err != nil {
-		return nil, err
-	}
-	req.Header.Set("Authorization", "Bearer "+token)
-
-	c := r.HttpClient
-	if c == nil {
-		c = http.DefaultClient
-	}
-	resp, err := c.Do(req)
-	if err != nil {
-		return nil, err
-	}
-	defer func() { _ = resp.Body.Close() }()
-
-	if resp.StatusCode == http.StatusNotFound {
-		return nil, notFoundError
-	}
-	if resp.StatusCode >= 300 {
-		body, _ := io.ReadAll(resp.Body)
-		return nil, fmt.Errorf("GET %s -> status %d: %s", url, resp.StatusCode, string(body))
-	}
-	return io.ReadAll(resp.Body)
-}
-
-func (r *CplnCRDController) crdGvc(crdObj *unstructured.Unstructured) (string, error) {
-	_, gvc, err := nameToCplnFormat(crdObj.GetKind(), crdObj.GetName())
-	if err != nil {
-		return "", err
-	}
-	return gvc, nil
-}
-
-func (r *CplnCRDController) getCplnResourceUrl(org string, crdObj *unstructured.Unstructured) (string, error) {
-	kind := crdObj.GetKind()
-	name, gvc, err := nameToCplnFormat(kind, crdObj.GetName())
-	if err != nil {
-		return "", err
-	}
-	url := fmt.Sprintf("%s/org/%s", r.apiUrl, org)
-	if gvc != "" {
-		url = fmt.Sprintf("%s/gvc/%s", url, gvc)
-	}
-	url = fmt.Sprintf("%s/%s/%s", url, strings.ToLower(kind), name)
-	return url, nil
-}
-
-func (r *CplnCRDController) putToCpln(ctx context.Context, token string, url string, cplnObj map[string]any, dryRun bool) (string, error) {
-	payload, err := json.Marshal(cplnObj)
-	if err != nil {
-		return "", err
-	}
-	req, err := http.NewRequestWithContext(ctx, http.MethodPut, url, bytes.NewReader(payload))
-	if err != nil {
-		return "", err
-	}
-	req.Header.Set("Authorization", "Bearer "+token)
-	req.Header.Set("Content-Type", "application/json")
-	if dryRun {
-		query := req.URL.Query()
-		query.Set("dryRun", "true")
-		req.URL.RawQuery = query.Encode()
-	}
-	c := r.HttpClient
-	if c == nil {
-		c = http.DefaultClient
-	}
-	resp, err := c.Do(req)
-	if err != nil {
-		return "", err
-	}
-	responseJson, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return "", err
-	}
-
-	if resp.StatusCode >= 300 {
-		return "", fmt.Errorf("PUT %s -> status %d: %s", url, resp.StatusCode, string(responseJson))
-	}
-	return string(responseJson), nil
-}
-
-func (r *CplnCRDController) syncFromCplnToK8s(ctx context.Context, log logr.Logger, org string, token string, cr *unstructured.Unstructured) (ctrl.Result, error) {
+func (r *CplnCRDController) syncFromCplnToK8s(ctx context.Context, log logr.Logger, org string, gvc string, token string, cr *unstructured.Unstructured) (ctrl.Result, error) {
 	log.Info("lastSyncedGeneration == generation, pulling from Control Plane")
 
-	cplnResource, err := r.fetchCplnResource(ctx, org, token, cr)
+	cplnResource, err := r.getCplnResource(ctx, org, gvc, token, cr)
 	if err != nil && !errors.Is(err, notFoundError) {
 		log.Error(err, "Error fetching from Control Plane")
 		return zeroResult, err
@@ -340,10 +371,11 @@ func (r *CplnCRDController) syncFromCplnToK8s(ctx context.Context, log logr.Logg
 	var cplnResourceMap map[string]any
 	err = json.Unmarshal(cplnResource, &cplnResourceMap)
 	if err != nil {
-		return zeroResult, err
+		log.Info(fmt.Sprintf("Got non-JSON response from Control Plane: %s", cplnResource))
+		return defaultResult, nil
 	}
 
-	url, err := r.getCplnResourceUrl(org, cr)
+	url, err := r.getCplnResourceUrl(org, gvc, cr)
 	if err != nil {
 		return zeroResult, err
 	}
@@ -353,7 +385,7 @@ func (r *CplnCRDController) syncFromCplnToK8s(ctx context.Context, log logr.Logg
 		return zeroResult, err
 	}
 
-	cplnResourceAfterDryRun, err := r.putToCpln(ctx, token, url, cplnObj, true)
+	cplnResourceAfterDryRun, err := r.putToCpln(ctx, log, token, url, cr, cplnObj, true)
 	if err != nil {
 		log.Error(err, "Error during cpln dry run")
 		return zeroResult, err
@@ -381,7 +413,7 @@ func (r *CplnCRDController) syncFromCplnToK8s(ctx context.Context, log logr.Logg
 
 	//No changes
 	if len(patch) == 0 || string(patch) == "{}" {
-		if err := r.updateCrStatus(ctx, cr, cplnResourceMap["status"]); err != nil {
+		if err := updateStatusWithSyncSuccess(ctx, r.Client, cr, cplnResourceMap["status"]); err != nil {
 			log.Error(err, "Failed to update lastSyncedGeneration after pulling from Control Plane")
 			return zeroResult, err
 		}
@@ -406,7 +438,7 @@ func (r *CplnCRDController) syncFromCplnToK8s(ctx context.Context, log logr.Logg
 		log.Error(err, "Could not unmarshal patched spec as JSON")
 		return zeroResult, err
 	}
-	cr, err = toK8sFormat(cr, patchedSpec)
+	cr, err = toK8sFormat(cr, org, gvc, patchedSpec)
 	if err != nil {
 		return zeroResult, err
 	}
@@ -417,13 +449,13 @@ func (r *CplnCRDController) syncFromCplnToK8s(ctx context.Context, log logr.Logg
 	}
 
 	for {
-		err := r.updateCrStatus(ctx, cr, cplnResourceMap["status"])
+		err := updateStatusWithSyncSuccess(ctx, r.Client, cr, cplnResourceMap["status"])
 		if err == nil {
 			break
 		}
 		var apiErr *metav1.StatusError
 		if errors.As(err, &apiErr) && apiErr.Status().Code == http.StatusConflict {
-			log.Info("Conflict detected (HTTP 409), retrying updateCrStatus")
+			log.Info("Conflict detected during status update, retrying")
 			err := r.Client.Get(ctx, types.NamespacedName{
 				Namespace: cr.GetNamespace(),
 				Name:      cr.GetName(),
@@ -440,10 +472,10 @@ func (r *CplnCRDController) syncFromCplnToK8s(ctx context.Context, log logr.Logg
 	return defaultResult, nil
 }
 
-func (r *CplnCRDController) syncFromK8sToCpln(ctx context.Context, log logr.Logger, org string, token string, cr *unstructured.Unstructured) (ctrl.Result, error) {
+func (r *CplnCRDController) syncFromK8sToCpln(ctx context.Context, log logr.Logger, org string, gvc string, token string, cr *unstructured.Unstructured) (ctrl.Result, error) {
 	log.Info("lastSyncedGeneration != generation, pushing to Control Plane")
 
-	url, err := r.getCplnResourceUrl(org, cr)
+	url, err := r.getCplnResourceUrl(org, gvc, cr)
 	if err != nil {
 		return zeroResult, err
 	}
@@ -452,20 +484,52 @@ func (r *CplnCRDController) syncFromK8sToCpln(ctx context.Context, log logr.Logg
 	if err != nil {
 		return zeroResult, err
 	}
-	response, err := r.putToCpln(ctx, token, url, cplnObj, false)
+	cplnResourceAfterUpdate, err := r.putToCpln(ctx, log, token, url, cr, cplnObj, false)
 	if err != nil {
 		log.Error(err, "Failed to PUT resource to Control Plane")
 		return zeroResult, err
 	}
 
+	if strings.TrimSpace(cplnResourceAfterUpdate) == "" {
+		b, err := r.getCplnResource(ctx, org, gvc, token, cr)
+		if err != nil {
+			log.Error(err, "Failed to GET resource from Control Plane")
+			return zeroResult, err
+		}
+		cplnResourceAfterUpdate = string(b)
+	}
+
 	responseMap := map[string]any{}
-	if err := json.Unmarshal([]byte(response), &responseMap); err != nil {
+	if err := json.Unmarshal([]byte(cplnResourceAfterUpdate), &responseMap); err != nil {
+		log.Error(err, fmt.Sprintf("could not unmarshal response from Control Plane: %s", cplnResourceAfterUpdate))
 		return zeroResult, err
 	}
 
-	if err := r.updateCrStatus(ctx, cr, responseMap["status"]); err != nil {
+	if err := updateStatusWithSyncSuccess(ctx, r.Client, cr, responseMap["status"]); err != nil {
 		log.Error(err, "Failed to update lastSyncedGeneration after pushing to Control Plane")
 		return zeroResult, err
 	}
 	return defaultResult, nil
+}
+
+func (r *CplnCRDController) removeFinalizer(ctx context.Context, cr *unstructured.Unstructured) error {
+	finalizers := cr.GetFinalizers()
+	if len(finalizers) == 0 {
+		return nil
+	}
+
+	updatedFinalizers := []string{}
+	for _, finalizer := range finalizers {
+		if finalizer != common.FINALIZER {
+			updatedFinalizers = append(updatedFinalizers, finalizer)
+		}
+	}
+
+	cr.SetFinalizers(updatedFinalizers)
+
+	if err := r.Client.Update(ctx, cr); err != nil {
+		return err
+	}
+
+	return nil
 }

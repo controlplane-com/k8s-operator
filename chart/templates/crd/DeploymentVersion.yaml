@@ -1,37 +1,18 @@
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
-  name: jobexecutionstatuses.cpln.io
+  name: deploymentversions.cpln.io
 spec:
   group: cpln.io
   names:
-    kind: jobexecutionstatus
-    plural: jobexecutionstatuses
+    kind: deploymentversion
+    plural: deploymentversions
   scope: Namespaced
   versions:
   - name: v1
     schema:
       openAPIV3Schema:
         properties:
-          completionTime:
-            type: string
-          conditions:
-            items:
-              properties:
-                lastDetectionTime:
-                  type: string
-                lastTransitionTime:
-                  type: string
-                message:
-                  type: string
-                reason:
-                  type: string
-                status:
-                  type: string
-                type:
-                  type: string
-              type: object
-            type: array
           containers:
             additionalProperties:
               properties:
@@ -67,12 +48,19 @@ spec:
                   type: object
               type: object
             type: object
+          created:
+            type: string
+          gvc:
+            type: number
+          message:
+            type: string
           name:
             type: string
-          replica:
+          org:
+            description: The organization that owns the resource
             type: string
-          startTime:
-            type: string
+          ready:
+            type: boolean
           status:
             properties:
               conditions:
@@ -86,14 +74,27 @@ spec:
                 type: array
               operator:
                 properties:
+                  downstreamOnly:
+                    type: boolean
+                  lastProcessedGeneration:
+                    type: number
+                  lastSyncTime:
+                    format: datetime
+                    type: string
                   lastSyncedGeneration:
                     type: number
+                  syncRetries:
+                    type: number
+                  validationError:
+                    type: string
                 type: object
               phase:
                 type: string
             type: object
-          workloadVersion:
+          workload:
             type: number
+        required:
+        - org
         type: object
     served: true
     storage: true

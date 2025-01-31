@@ -119,15 +119,15 @@ rules:
 - apiGroups:
   - cpln.io
   resources:
-  - policies
-  - policies/status
+  - persistentvolumestatuses
+  - persistentvolumestatuses/status
   verbs:
   - '*'
 - apiGroups:
   - cpln.io
   resources:
-  - secrets
-  - secrets/status
+  - policies
+  - policies/status
   verbs:
   - '*'
 - apiGroups:
@@ -149,6 +149,13 @@ rules:
   resources:
   - volumesets
   - volumesets/status
+  verbs:
+  - '*'
+- apiGroups:
+  - cpln.io
+  resources:
+  - volumesetstatuslocations
+  - volumesetstatuslocations/status
   verbs:
   - '*'
 - apiGroups:

@@ -36,6 +36,9 @@ spec:
             type: array
           name:
             type: string
+          org:
+            description: The organization that owns the resource
+            type: string
           spec:
             properties:
               containers:
@@ -414,7 +417,9 @@ spec:
                   attempts:
                     type: number
                   retryOn:
-                    type: string
+                    items:
+                      type: string
+                    type: array
                 type: object
               rolloutOptions:
                 type: string
@@ -1227,8 +1232,19 @@ spec:
                 type: array
               operator:
                 properties:
+                  downstreamOnly:
+                    type: boolean
+                  lastProcessedGeneration:
+                    type: number
+                  lastSyncTime:
+                    format: datetime
+                    type: string
                   lastSyncedGeneration:
                     type: number
+                  syncRetries:
+                    type: number
+                  validationError:
+                    type: string
                 type: object
               parentId:
                 type: string
@@ -1274,6 +1290,9 @@ spec:
             type: object
           version:
             type: number
+        required:
+        - org
+        - gvc
         type: object
     served: true
     storage: true

@@ -2,36 +2,26 @@ package controllers
 
 import (
 	"context"
+	"fmt"
 	"github.com/controlplane-com/k8s-operator/pkg/common"
 	"github.com/controlplane-com/types-go/pkg/containerstatus"
 	"github.com/controlplane-com/types-go/pkg/cronjob"
 	"github.com/controlplane-com/types-go/pkg/deployment"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
-	"k8s.io/apimachinery/pkg/runtime/schema"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"slices"
 	"time"
 )
 
-var deploymentGVK = schema.GroupVersionKind{
-	Group:   common.API_GROUP,
-	Version: common.API_REVISION,
-	Kind:    "deployment",
+type Interest struct {
+	Org      string `json:"org"`
+	Gvc      string `json:"gvc"`
+	Workload string `json:"workload"`
 }
-var deploymentVersionGVK = schema.GroupVersionKind{
-	Group:   common.API_GROUP,
-	Version: common.API_REVISION,
-	Kind:    "deploymentversion",
-}
-var containerStatusGVK = schema.GroupVersionKind{
-	Group:   common.API_GROUP,
-	Version: common.API_REVISION,
-	Kind:    "containerstatus",
-}
-var jobExecutionStatusGVK = schema.GroupVersionKind{
-	Group:   common.API_GROUP,
-	Version: common.API_REVISION,
-	Kind:    "jobexecutionstatus",
+
+type RegisterInterestRequest struct {
+	Token     string     `json:"token"`
+	Interests []Interest `json:"interests"`
 }
 
 type syncContext struct {
@@ -73,38 +63,10 @@ func (ctx *syncContext) copy() *syncContext {
 	return c
 }
 
-func ready(cr *unstructured.Unstructured) {
-	if _, ok := cr.Object["status"]; !ok {
-		cr.Object["status"] = map[string]any{}
-	}
-	status := cr.Object["status"].(map[string]any)
-	status["phase"] = "Ready"
-	status["conditions"] = []map[string]any{
-		{
-			"status": "True",
-			"type":   "Ready",
-		},
-	}
-}
-
-func unready(cr *unstructured.Unstructured) {
-	if _, ok := cr.Object["status"]; !ok {
-		cr.Object["status"] = map[string]any{}
-	}
-	status := cr.Object["status"].(map[string]any)
-	status["phase"] = "Pending"
-	status["conditions"] = []map[string]any{
-		{
-			"status": "False",
-			"type":   "Ready",
-		},
-	}
-}
-
 func syncWorkloadDeployments(ctx *syncContext, deployments []deployment.Deployment) error {
 	var deploymentCRs []*unstructured.Unstructured
 	for _, d := range deployments {
-		cr, err := unstructuredCR(deploymentGVK, ctx.namespace, d.Name, d, ctx.parent)
+		cr, err := unstructuredCR(common.DeploymentGVK, ctx.namespace, d.Name, d, ctx.parent)
 		if err != nil {
 			return err
 		}
@@ -113,10 +75,11 @@ func syncWorkloadDeployments(ctx *syncContext, deployments []deployment.Deployme
 		} else {
 			unready(cr)
 		}
+		synced(cr, true)
 		delete(cr.Object["status"].(map[string]any), "internal")
 		deploymentCRs = append(deploymentCRs, cr)
 	}
-	deletedDeployments, err := syncCRs(ctx.copy(), deploymentCRs, deploymentGVK)
+	deletedDeployments, err := syncCRs(ctx.copy(), deploymentCRs, common.DeploymentGVK)
 	if err != nil {
 		return err
 	}
@@ -138,15 +101,13 @@ func syncWorkloadDeployments(ctx *syncContext, deployments []deployment.Deployme
 
 func syncDeploymentVersions(ctx *syncContext, versions []deployment.DeploymentVersion) error {
 	var versionCRs []*unstructured.Unstructured
-	var filteredVersions []deployment.DeploymentVersion
-	for _, v := range versions {
+	for i, v := range versions {
 		if v.Name == "" {
-			continue
+			versions[i].Name = fmt.Sprintf("version-%d", int(v.Workload))
 		}
-		filteredVersions = append(filteredVersions, v)
 	}
-	for _, v := range filteredVersions {
-		cr, err := unstructuredCR(deploymentVersionGVK, ctx.namespace, v.Name, v, ctx.parent)
+	for _, v := range versions {
+		cr, err := unstructuredCR(common.DeploymentVersionGVK, ctx.namespace, v.Name, v, ctx.parent)
 		if err != nil {
 			return err
 		}
@@ -155,13 +116,14 @@ func syncDeploymentVersions(ctx *syncContext, versions []deployment.DeploymentVe
 		} else {
 			unready(cr)
 		}
+		synced(cr, true)
 		versionCRs = append(versionCRs, cr)
 	}
-	deletedVersions, err := syncCRs(ctx, versionCRs, deploymentVersionGVK)
+	deletedVersions, err := syncCRs(ctx, versionCRs, common.DeploymentVersionGVK)
 	if err != nil {
 		return err
 	}
-	for i, v := range filteredVersions {
+	for i, v := range versions {
 		if slices.Contains(deletedVersions, v.Name) {
 			continue
 		}
@@ -176,7 +138,7 @@ func syncDeploymentVersions(ctx *syncContext, versions []deployment.DeploymentVe
 func syncJobExecutions(ctx *syncContext, jobExecutions []cronjob.JobExecutionStatus) error {
 	var jobExecutionCRs []*unstructured.Unstructured
 	for _, j := range jobExecutions {
-		cr, err := unstructuredCR(jobExecutionStatusGVK, ctx.namespace, j.Name, j, ctx.parent)
+		cr, err := unstructuredCR(common.JobExecutionStatusGVK, ctx.namespace, j.Name, j, ctx.parent)
 		if err != nil {
 			return err
 		}
@@ -185,9 +147,10 @@ func syncJobExecutions(ctx *syncContext, jobExecutions []cronjob.JobExecutionSta
 		} else {
 			unready(cr)
 		}
+		synced(cr, true)
 		jobExecutionCRs = append(jobExecutionCRs, cr)
 	}
-	deletedExecutions, err := syncCRs(ctx, jobExecutionCRs, jobExecutionStatusGVK)
+	deletedExecutions, err := syncCRs(ctx, jobExecutionCRs, common.JobExecutionStatusGVK)
 	if err != nil {
 		return err
 	}
@@ -206,7 +169,7 @@ func syncJobExecutions(ctx *syncContext, jobExecutions []cronjob.JobExecutionSta
 func syncContainerStatuses(ctx *syncContext, containers []containerstatus.ContainerStatus) error {
 	var containerCRs []*unstructured.Unstructured
 	for _, container := range containers {
-		cr, err := unstructuredCR(containerStatusGVK, ctx.namespace, container.Name, container, ctx.parent)
+		cr, err := unstructuredCR(common.ContainerStatusGVK, ctx.namespace, container.Name, container, ctx.parent)
 		if err != nil {
 			return err
 		}
@@ -215,8 +178,9 @@ func syncContainerStatuses(ctx *syncContext, containers []containerstatus.Contai
 		} else {
 			unready(cr)
 		}
+		synced(cr, true)
 		containerCRs = append(containerCRs, cr)
 	}
-	_, err := syncCRs(ctx, containerCRs, containerStatusGVK)
+	_, err := syncCRs(ctx, containerCRs, common.ContainerStatusGVK)
 	return err
 }

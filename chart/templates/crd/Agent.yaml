@@ -1,12 +1,12 @@
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
-  name: ipsets.cpln.io
+  name: agents.cpln.io
 spec:
   group: cpln.io
   names:
-    kind: ipset
-    plural: ipsets
+    kind: agent
+    plural: agents
   scope: Namespaced
   versions:
   - name: v1
@@ -34,22 +34,22 @@ spec:
             type: array
           name:
             type: string
-          spec:
-            properties:
-              link:
-                type: string
-              locations:
-                items:
-                  properties:
-                    name:
-                      type: string
-                    retentionPolicy:
-                      type: string
-                  type: object
-                type: array
-            type: object
+          org:
+            description: The organization that owns the resource
+            type: string
           status:
             properties:
+              bootstrapConfig:
+                properties:
+                  agentId:
+                    type: string
+                  agentLink:
+                    type: string
+                  hubEndpoint:
+                    type: string
+                  registrationToken:
+                    type: string
+                type: object
               conditions:
                 items:
                   properties:
@@ -59,27 +59,21 @@ spec:
                       type: string
                   type: object
                 type: array
-              error:
-                type: string
-              ipAddresses:
-                items:
-                  properties:
-                    created:
-                      type: string
-                    id:
-                      type: string
-                    ip:
-                      type: string
-                    name:
-                      type: string
-                    state:
-                      type: string
-                  type: object
-                type: array
               operator:
                 properties:
+                  downstreamOnly:
+                    type: boolean
+                  lastProcessedGeneration:
+                    type: number
+                  lastSyncTime:
+                    format: datetime
+                    type: string
                   lastSyncedGeneration:
                     type: number
+                  syncRetries:
+                    type: number
+                  validationError:
+                    type: string
                 type: object
               phase:
                 type: string
@@ -90,6 +84,8 @@ spec:
             type: object
           version:
             type: number
+        required:
+        - org
         type: object
     served: true
     storage: true

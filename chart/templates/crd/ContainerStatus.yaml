@@ -19,6 +19,9 @@ spec:
             type: string
           name:
             type: string
+          org:
+            description: The organization that owns the resource
+            type: string
           ready:
             type: boolean
           resources:
@@ -56,12 +59,25 @@ spec:
                 type: array
               operator:
                 properties:
+                  downstreamOnly:
+                    type: boolean
+                  lastProcessedGeneration:
+                    type: number
+                  lastSyncTime:
+                    format: datetime
+                    type: string
                   lastSyncedGeneration:
                     type: number
+                  syncRetries:
+                    type: number
+                  validationError:
+                    type: string
                 type: object
               phase:
                 type: string
             type: object
+        required:
+        - org
         type: object
     served: true
     storage: true

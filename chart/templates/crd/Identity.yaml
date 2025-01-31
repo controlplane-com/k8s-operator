@@ -189,6 +189,9 @@ spec:
               subs:
                 type: number
             type: object
+          org:
+            description: The organization that owns the resource
+            type: string
           spicedbAccess:
             items:
               properties:
@@ -234,8 +237,19 @@ spec:
                 type: string
               operator:
                 properties:
+                  downstreamOnly:
+                    type: boolean
+                  lastProcessedGeneration:
+                    type: number
+                  lastSyncTime:
+                    format: datetime
+                    type: string
                   lastSyncedGeneration:
                     type: number
+                  syncRetries:
+                    type: number
+                  validationError:
+                    type: string
                 type: object
               phase:
                 type: string
@@ -246,6 +260,9 @@ spec:
             type: object
           version:
             type: number
+        required:
+        - org
+        - gvc
         type: object
     served: true
     storage: true
