@@ -14,7 +14,7 @@ resources using Kubernetes custom resource definitions (CRDs).
 3. Run
    ``` shell
    helm repo add cpln https://controlplane-com.github.io/k8s-operator 
-   helm install cpln-operator cpln/cpln-operator` 
+   helm install cpln-operator cpln/cpln-operator
    ```
 4. Provision a [Service Account](https://docs.controlplane.com/reference/serviceaccount#service-account), taking note of 
    the generated token.
@@ -42,6 +42,28 @@ configured to sync the resource with Control Plane.
 - Consult the [custom resource definitions](chart/templates/crd) for information about the available and required fields. 
 - For gvc-scoped kinds, a namespace per GVC is recommended.
 - For org-scoped kinds, a namespace per org is recommended.
+
+## Preventing Resource Deletion
+Deleting a Kubernetes resource while the controller is installed and running will remove the corresponding resource 
+from Control Plane. You can prevent this by adding a special annotation to the resource anytime before deletion. e.g.
+``` yaml
+kind: gvc
+metadata:
+  name: fresh
+  namespace: default
+  annotations:
+    cpln.io/resource-policy: keep
+apiVersion: cpln.io/v1
+description: fresh
+org: kyle-test-org-2
+tags: {}
+spec:
+  loadBalancer:
+    dedicated: false
+  staticPlacement:
+    locationLinks:
+      - //location/aws-eu-central-1
+```
 
 ## Argo CD
 The operator integrates closely with [ArgoCD](https://argoproj.github.io/cd/). There is no special configuration needed
