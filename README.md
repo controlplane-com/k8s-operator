@@ -3,7 +3,7 @@ A Kubernetes operator for [Control Plane](https://controlplane.com). This projec
 resources using Kubernetes custom resource definitions (CRDs). 
 
 ## Prerequisites
-- A [Kubernetes](https://kubernetes.io) cluster with [Cert Manager](https://cert-manager.io) installed.
+- A [Kubernetes](https://kubernetes.io) cluster with [Cert Manager](https://cert-manager.io/docs/installation/) installed.
 - The [Helm](https://helm.sh) CLI
 - A [Control Plane](https://controlplane.com) account
 
