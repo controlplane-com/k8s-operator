@@ -4,7 +4,27 @@ entries:
   - annotations:
       category: Helm Chart
     apiVersion: v2
-    created: "2025-01-31T17:17:49.855518625-05:00"
+    created: "2025-02-03T11:11:23.498976166-05:00"
+    description: A Helm chart for the Control Plane Kubernetes Operator
+    digest: b0b99811fc37252642ddb58004fad435d2bc739226198a7aa70e6e7e60feac35
+    keywords:
+    - go
+    - Control Plane
+    - helm
+    maintainers:
+    - email: kyle@controlplane.com
+      name: Kyle Cupp
+    name: cpln-operator
+    sources:
+    - https://github.com/controlplane-com/k8s-operator
+    type: application
+    urls:
+    - https://controlplane-com.github.io/k8s-operator/published-charts/cpln-operator-0.1.1.tgz
+    version: 0.1.1
+  - annotations:
+      category: Helm Chart
+    apiVersion: v2
+    created: "2025-02-03T11:11:23.498309108-05:00"
     description: A Helm chart for the Control Plane Kubernetes Operator
     digest: 46dd833ab5612143da377909aa15f146e71f379f1787fffb94d5fd527f78b60a
     keywords:
@@ -21,4 +41,4 @@ entries:
     urls:
     - https://controlplane-com.github.io/k8s-operator/published-charts/cpln-operator-0.1.0.tgz
     version: 0.1.0
-generated: "2025-01-31T17:17:49.854798811-05:00"
+generated: "2025-02-03T11:11:23.497088766-05:00"
