@@ -4,7 +4,7 @@ entries:
   - annotations:
       category: Helm Chart
     apiVersion: v2
-    created: "2025-02-03T12:04:07.079510776-05:00"
+    created: "2025-02-03T12:09:55.673471527-05:00"
     description: A Helm chart for the Control Plane Kubernetes Operator
     digest: 62f84f4bce0582bde8fbe16d0fd19c4353596969c9d7d4bff79747ef26801a0f
     keywords:
@@ -19,12 +19,12 @@ entries:
     - https://github.com/controlplane-com/k8s-operator
     type: application
     urls:
-    - https://controlplane-com.github.io/k8s-operator/cpln-operator-0.1.2.tgz
+    - https://controlplane-com.github.io/k8s-operator/published-charts/cpln-operator-0.1.2.tgz
     version: 0.1.2
   - annotations:
       category: Helm Chart
     apiVersion: v2
-    created: "2025-02-03T12:04:07.07880197-05:00"
+    created: "2025-02-03T12:09:55.672355731-05:00"
     description: A Helm chart for the Control Plane Kubernetes Operator
     digest: b0b99811fc37252642ddb58004fad435d2bc739226198a7aa70e6e7e60feac35
     keywords:
@@ -39,12 +39,12 @@ entries:
     - https://github.com/controlplane-com/k8s-operator
     type: application
     urls:
-    - https://controlplane-com.github.io/k8s-operator/cpln-operator-0.1.1.tgz
+    - https://controlplane-com.github.io/k8s-operator/published-charts/cpln-operator-0.1.1.tgz
     version: 0.1.1
   - annotations:
       category: Helm Chart
     apiVersion: v2
-    created: "2025-02-03T12:04:07.078053482-05:00"
+    created: "2025-02-03T12:09:55.671732227-05:00"
     description: A Helm chart for the Control Plane Kubernetes Operator
     digest: 46dd833ab5612143da377909aa15f146e71f379f1787fffb94d5fd527f78b60a
     keywords:
@@ -59,6 +59,6 @@ entries:
     - https://github.com/controlplane-com/k8s-operator
     type: application
     urls:
-    - https://controlplane-com.github.io/k8s-operator/cpln-operator-0.1.0.tgz
+    - https://controlplane-com.github.io/k8s-operator/published-charts/cpln-operator-0.1.0.tgz
     version: 0.1.0
-generated: "2025-02-03T12:04:07.077274684-05:00"
+generated: "2025-02-03T12:09:55.671025185-05:00"
