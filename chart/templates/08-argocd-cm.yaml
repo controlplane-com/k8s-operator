@@ -96,7 +96,7 @@ data:
             jsonPointers:
               - /metadata/ownerReferences
 
-        cpln.io/auditcontext:
+        cpln.io/auditctx:
           health.lua: |
             hs = {}
             

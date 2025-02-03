@@ -2,8 +2,11 @@ package main
 
 import (
 	"fmt"
+	v1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
+	"k8s.io/apimachinery/pkg/util/yaml"
 	"log"
 	"os"
+	"path/filepath"
 	"strings"
 )
 
@@ -30,11 +33,16 @@ func main() {
 			continue
 		}
 
-		fileName := f.Name()
-		base := strings.TrimSuffix(fileName, ".yaml")
-		lowerKind := strings.ToLower(base)
+		var crd v1.CustomResourceDefinition
+		b, err := os.ReadFile(filepath.Join(crdDir, f.Name()))
+		if err != nil {
+			log.Fatalf("Failed to read CRD file: %v", err)
+		}
+		if err = yaml.Unmarshal(b, &crd); err != nil {
+			log.Fatalf("Failed to unmarshal CRD file: %v", err)
+		}
 
-		groupKind := fmt.Sprintf("      cpln.io/%s", lowerKind)
+		groupKind := fmt.Sprintf("      cpln.io/%s", crd.Spec.Names.Kind)
 
 		customizationsBuilder.WriteString(fmt.Sprintf("  %s:\n", groupKind))
 		customizationsBuilder.WriteString("          health.lua: |\n")
@@ -49,7 +57,7 @@ func main() {
 		customizationsBuilder.WriteString("              - /metadata/ownerReferences\n\n")
 	}
 
-	yaml := fmt.Sprintf(`apiVersion: v1
+	configMapYaml := fmt.Sprintf(`apiVersion: v1
 kind: ConfigMap
 metadata:
   name: argocd-cm-patch
@@ -61,7 +69,7 @@ data:
 %s
 `, customizationsBuilder.String())
 
-	if err := os.WriteFile(outputFile, []byte(yaml), 0644); err != nil {
+	if err := os.WriteFile(outputFile, []byte(configMapYaml), 0644); err != nil {
 		log.Fatalf("Failed to write patch file: %v", err)
 	}
 
