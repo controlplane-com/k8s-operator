@@ -1,0 +1,14 @@
+project: default
+source:
+  repoURL: https://github.com/Cuppojoe/argo-example.git
+  path: manifests
+  targetRevision: HEAD
+  directory:
+    recurse: true
+    jsonnet: {}
+destination:
+  server: https://kubernetes.default.svc
+syncPolicy:
+  automated:
+    prune: true
+    selfHeal: true
