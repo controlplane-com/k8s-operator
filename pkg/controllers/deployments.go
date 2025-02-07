@@ -63,42 +63,6 @@ func (ctx *syncContext) copy() *syncContext {
 	return c
 }
 
-func syncWorkloadDeployments(ctx *syncContext, deployments []deployment.Deployment) error {
-	var deploymentCRs []*unstructured.Unstructured
-	for _, d := range deployments {
-		cr, err := unstructuredCR(common.DeploymentGVK, ctx.namespace, d.Name, d, ctx.parent)
-		if err != nil {
-			return err
-		}
-		if d.Status.Ready {
-			ready(cr)
-		} else {
-			unready(cr)
-		}
-		synced(cr, true)
-		delete(cr.Object["status"].(map[string]any), "internal")
-		deploymentCRs = append(deploymentCRs, cr)
-	}
-	deletedDeployments, err := syncCRs(ctx.copy(), deploymentCRs, common.DeploymentGVK)
-	if err != nil {
-		return err
-	}
-
-	for i, d := range deployments {
-		if slices.Contains(deletedDeployments, d.Name) {
-			continue
-		}
-		ctx.parent = deploymentCRs[i]
-		if err = syncDeploymentVersions(ctx.copy(), d.Status.Versions); err != nil {
-			return err
-		}
-		if err = syncJobExecutions(ctx.copy(), d.Status.JobExecutions); err != nil {
-			return err
-		}
-	}
-	return nil
-}
-
 func syncDeploymentVersions(ctx *syncContext, versions []deployment.DeploymentVersion) error {
 	var versionCRs []*unstructured.Unstructured
 	for i, v := range versions {
@@ -114,9 +78,9 @@ func syncDeploymentVersions(ctx *syncContext, versions []deployment.DeploymentVe
 		if v.Ready {
 			ready(cr)
 		} else {
-			unready(cr)
+			progressing(cr)
 		}
-		synced(cr, true)
+		synced(cr, true, nil)
 		versionCRs = append(versionCRs, cr)
 	}
 	deletedVersions, err := syncCRs(ctx, versionCRs, common.DeploymentVersionGVK)
@@ -135,6 +99,24 @@ func syncDeploymentVersions(ctx *syncContext, versions []deployment.DeploymentVe
 	return nil
 }
 
+func anyVersionReady(versions []deployment.DeploymentVersion) bool {
+	for _, v := range versions {
+		if v.Ready {
+			return true
+		}
+	}
+	return false
+}
+
+func anyVersionUnready(versions []deployment.DeploymentVersion) bool {
+	for _, v := range versions {
+		if !v.Ready {
+			return true
+		}
+	}
+	return false
+}
+
 func syncJobExecutions(ctx *syncContext, jobExecutions []cronjob.JobExecutionStatus) error {
 	var jobExecutionCRs []*unstructured.Unstructured
 	for _, j := range jobExecutions {
@@ -145,9 +127,9 @@ func syncJobExecutions(ctx *syncContext, jobExecutions []cronjob.JobExecutionSta
 		if j.Status != "failed" && j.Status != "invalid" && j.Status != "removed" {
 			ready(cr)
 		} else {
-			unready(cr)
+			progressing(cr)
 		}
-		synced(cr, true)
+		synced(cr, true, nil)
 		jobExecutionCRs = append(jobExecutionCRs, cr)
 	}
 	deletedExecutions, err := syncCRs(ctx, jobExecutionCRs, common.JobExecutionStatusGVK)
@@ -176,11 +158,34 @@ func syncContainerStatuses(ctx *syncContext, containers []containerstatus.Contai
 		if container.Ready {
 			ready(cr)
 		} else {
-			unready(cr)
+			progressing(cr)
 		}
-		synced(cr, true)
+		synced(cr, true, nil)
 		containerCRs = append(containerCRs, cr)
 	}
 	_, err := syncCRs(ctx, containerCRs, common.ContainerStatusGVK)
 	return err
+}
+
+func collectDeploymentMessages(deployments []*unstructured.Unstructured) []string {
+	var messages []string
+	for _, d := range deployments {
+		status, ok := d.Object["status"].(map[string]any)
+		if ok {
+			messages = append(messages, status["message"].(string))
+		}
+		for _, v := range status["versions"].([]any) {
+			v := v.(map[string]any)
+			if v["message"] != nil {
+				messages = append(messages, v["message"].(string))
+			}
+			for _, c := range v["containers"].(map[string]any) {
+				c := c.(map[string]any)
+				if c["message"] != nil {
+					messages = append(messages, c["message"].(string))
+				}
+			}
+		}
+	}
+	return messages
 }

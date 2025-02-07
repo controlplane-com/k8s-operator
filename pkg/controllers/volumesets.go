@@ -56,17 +56,17 @@ func getPersistentVolumeStatuses(location *unstructured.Unstructured) []*unstruc
 		}
 		switch lifecycle {
 		case "creating":
-			unready(child)
+			progressing(child)
 			break
 		case "unused":
 			suspended(child)
 			break
 		case "unbound":
-			unready(child)
+			progressing(child)
 		case "bound":
 			ready(child)
 		}
-		synced(child, true)
+		synced(child, true, nil)
 		children = append(children, child)
 	}
 	return children
@@ -84,7 +84,7 @@ func getVolumeSetStatusLocations(cr *unstructured.Unstructured) []*unstructured.
 	var locationResources []*unstructured.Unstructured
 	for _, l := range locations {
 		child, err := unstructuredCR(common.VolumesetStatusLocationGVK, cr.GetNamespace(), "", l, cr)
-		synced(child, true)
+		synced(child, true, nil)
 		if err != nil {
 			continue
 		}

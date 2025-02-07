@@ -24,4 +24,9 @@ webhooks:
         resources:   ["*"]
         operations:  ["CREATE","UPDATE"]
         scope:       "Namespaced"
+      - apiGroups:   [""]
+        apiVersions: ["v1"]
+        resources:   ["secrets"]
+        operations:  ["CREATE","UPDATE"]
+        scope:       "Namespaced"
     reinvocationPolicy: Never

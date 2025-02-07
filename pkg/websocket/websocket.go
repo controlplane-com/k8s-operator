@@ -11,20 +11,27 @@ import (
 	"time"
 )
 
-type Handler func(message []byte) error
+// MessageHandler is the function type for receiving messages on the connection.
+type MessageHandler func(message []byte) error
 
+// ConnectHandler is the function type for an action to be performed
+// each time a new connection is established or reestablished.
+type ConnectHandler func(w Client) error
+
+// Client is the interface for sending and closing the websocket client.
 type Client interface {
 	Send(message []byte) error
 	Close() error
 }
 
+// client is the internal implementation of Client.
 type client struct {
 	reconnectDelay time.Duration
 	ctx            context.Context
 	cancel         context.CancelFunc
 	conn           *websocket.Conn
 	token          string
-	handler        Handler
+	handler        MessageHandler
 	url            string
 	l              logr.Logger
 	done           chan bool
@@ -32,11 +39,25 @@ type client struct {
 	buf            chan []byte
 	closed         bool
 	closeMutex     *sync.Mutex
+
+	// onConnect is called any time the client successfully connects or reconnects.
+	onConnect ConnectHandler
 }
 
-func NewClient(ctx context.Context, l logr.Logger, url string, token string, reconnectDelay time.Duration, handler Handler) (Client, error) {
-	if handler == nil {
-		return nil, errors.New("handler is nil")
+// NewClient creates a websocket client and starts the connection loop.
+// The onConnect handler is optional; if provided, it will be called
+// whenever a connection is established or reestablished.
+func NewClient(
+	ctx context.Context,
+	l logr.Logger,
+	url string,
+	token string,
+	reconnectDelay time.Duration,
+	onMessage MessageHandler,
+	onConnect ConnectHandler,
+) (Client, error) {
+	if onMessage == nil {
+		return nil, errors.New("onMessage is nil")
 	}
 	ctx, cancel := context.WithCancel(ctx)
 	c := &client{
@@ -44,7 +65,7 @@ func NewClient(ctx context.Context, l logr.Logger, url string, token string, rec
 		ctx:            ctx,
 		cancel:         cancel,
 		token:          token,
-		handler:        handler,
+		handler:        onMessage,
 		l:              l,
 		url:            url,
 		done:           make(chan bool),
@@ -52,16 +73,19 @@ func NewClient(ctx context.Context, l logr.Logger, url string, token string, rec
 		m:              &sync.Mutex{},
 		closed:         false,
 		closeMutex:     &sync.Mutex{},
+		onConnect:      onConnect,
 	}
 	go c.run()
 	return c, nil
 }
 
+// Send writes a message to the websocket connection if it is established.
+// If no connection exists yet, the message is buffered until one is available.
 func (c *client) Send(message []byte) error {
 	c.m.Lock()
 	defer c.m.Unlock()
 	if c.conn == nil {
-		if len(c.buf) == 1000 {
+		if len(c.buf) == cap(c.buf) {
 			return errors.New("buffer full, client is not connected, dropping message")
 		}
 		c.buf <- message
@@ -70,16 +94,7 @@ func (c *client) Send(message []byte) error {
 	return c.conn.WriteMessage(websocket.TextMessage, message)
 }
 
-func (c *client) drainBuffer() {
-	for len(c.buf) > 0 {
-		message := <-c.buf
-		if err := c.conn.WriteMessage(websocket.TextMessage, message); err != nil {
-			c.l.Error(err, "Failed to send message to websocket")
-			return
-		}
-	}
-}
-
+// Close stops the client connection loop and cleans up resources.
 func (c *client) Close() error {
 	c.closeMutex.Lock()
 	defer c.closeMutex.Unlock()
@@ -93,14 +108,10 @@ func (c *client) Close() error {
 	return nil
 }
 
-func (c *client) signalDone() {
-	c.done <- true
-	close(c.done)
-}
-
+// run manages the lifecycle of the websocket client, reconnecting
+// automatically with a fixed delay.
 func (c *client) run() {
 	for {
-		// Check if the context is done before attempting a connection
 		select {
 		case <-c.ctx.Done():
 			c.signalDone()
@@ -112,6 +123,7 @@ func (c *client) run() {
 		if err != nil {
 			c.l.Error(err, fmt.Sprintf("Connection terminated: Retrying in %s...", c.reconnectDelay))
 		}
+
 		select {
 		case <-c.ctx.Done():
 			c.signalDone()
@@ -122,22 +134,32 @@ func (c *client) run() {
 	}
 }
 
+// connect attempts to establish the websocket connection, reads messages,
+// and handles disconnections. It will return when the connection is lost.
 func (c *client) connect() error {
 	signalConnectionDone := sync.Once{}
 	connectionDone := make(chan error)
-	// Establish a connection
+
 	header := http.Header{}
 	header.Set("Authorization", fmt.Sprintf("Bearer %s", c.token))
 	conn, _, err := websocket.DefaultDialer.Dial(c.url, header)
 	if err != nil {
 		return err
 	}
+	// If we exit before the function ends, make sure to close the connection.
 	defer func() { _ = conn.Close() }()
 
 	c.m.Lock()
 	c.conn = conn
 	c.drainBuffer()
 	c.m.Unlock()
+
+	// Call onConnect right after the connection is established.
+	if c.onConnect != nil {
+		if err := c.onConnect(c); err != nil {
+			return err
+		}
+	}
 
 	conn.SetCloseHandler(func(code int, text string) error {
 		signalConnectionDone.Do(func() {
@@ -146,7 +168,7 @@ func (c *client) connect() error {
 		return nil
 	})
 
-	// Listen for messages or handle disconnections
+	// Goroutine to receive messages and forward them to the handler.
 	go func() {
 		for {
 			_, message, err := conn.ReadMessage()
@@ -165,10 +187,10 @@ func (c *client) connect() error {
 		}
 	}()
 
-	// Block until disconnection occurs, or context is cancelled
+	// Wait for either a disconnection or context cancellation.
 	select {
 	case <-c.ctx.Done():
-		_ = conn.Close() // Close the connection in case of context cancellation
+		_ = conn.Close()
 		return nil
 	case err := <-connectionDone:
 		c.m.Lock()
@@ -176,4 +198,22 @@ func (c *client) connect() error {
 		c.m.Unlock()
 		return err
 	}
+}
+
+// drainBuffer empties any messages accumulated while disconnected
+// and writes them to the newly established connection.
+func (c *client) drainBuffer() {
+	for len(c.buf) > 0 {
+		message := <-c.buf
+		if err := c.conn.WriteMessage(websocket.TextMessage, message); err != nil {
+			c.l.Error(err, "Failed to send message to websocket")
+			return
+		}
+	}
+}
+
+// signalDone signals that the run loop has exited.
+func (c *client) signalDone() {
+	c.done <- true
+	close(c.done)
 }

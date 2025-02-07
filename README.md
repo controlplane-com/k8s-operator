@@ -11,6 +11,11 @@ resources using Kubernetes custom resource definitions (CRDs).
 1. Ensure the prerequisites are met. If you don't already have a Kubernetes cluster, [kind](https://kind.sigs.k8s.io/) is a great 
    way to get started.
 2. (Optional) [Install ArgoCD](https://argo-cd.readthedocs.io/en/stable/getting_started/)
+   - If you decide to install Argo later, you'll need to upgrade your helm installation to get the spiffy Argo-specific
+     features.
+     ``` shell 
+     helm upgrade cpln-operator cpln/cpln-operator
+     ``` 
 3. Run
    ``` shell
    helm repo add cpln https://controlplane-com.github.io/k8s-operator 
@@ -18,7 +23,8 @@ resources using Kubernetes custom resource definitions (CRDs).
    ```
 4. Provision a [Service Account](https://docs.controlplane.com/reference/serviceaccount#service-account), taking note of 
    the generated token.
-5. Create a secret named after your org in the `controlplane` namespace of your Kubernetes cluster. e.g.
+5. Create a secret named after your org in the `controlplane` namespace of your Kubernetes cluster. 
+   **NOTE**: the app.kubernetes.io/managed-by label is required. See the example below.
    ```yaml
    apiVersion: v1
    data:
@@ -27,6 +33,8 @@ resources using Kubernetes custom resource definitions (CRDs).
    metadata:
       name: my-org
       namespace: controlplane
+      labels: 
+        app.kubernetes.io/managed-by: cpln-operator #This label is required
    type: Opaque
    ```
 
@@ -79,6 +87,7 @@ https://github.com/cuppojoe/argo-example
 The operator supports:
 - `agent`
 - `auditcontext`
+- `domain`
 - `group`
 - `gvc`
 - `identity`
@@ -87,4 +96,30 @@ The operator supports:
 - `policy`
 - `volumeset`
 - `workload`
+- `secret` ([Secrets are a special case](#secrets))
 
+
+## Secrets
+For security reasons, secret data must be stored using a native Kubernetes Secret object, not a custom resource. This makes it
+slightly different from the other kinds. 
+
+**Note the app.kubernetes.io/managed-by label, and the cpln.io/org annotation in the example below**
+
+### Example
+
+```yaml
+apiVersion: v1
+kind: Secret
+type: opaque
+metadata:
+  labels:
+    app.kubernetes.io/managed-by: cpln-operator #Secrets without this label are ignored
+  name: secret
+  namespace: default
+  annotations:
+    cpln.io/org: kyle-test-org #Replace this with your org name. This is required
+data:
+  encoding: cGxhaW4= #plain
+  payload: c2VjcmV0LXZhbHVl #secret-value
+```
+ 

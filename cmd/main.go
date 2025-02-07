@@ -5,9 +5,14 @@ import (
 	"fmt"
 	"github.com/controlplane-com/k8s-operator/pkg/common"
 	"github.com/controlplane-com/k8s-operator/pkg/controllers"
+	"github.com/controlplane-com/k8s-operator/pkg/mutators"
+	corev1 "k8s.io/api/core/v1"
+	"k8s.io/apimachinery/pkg/labels"
 	"net/http"
 	"os"
 	"runtime"
+	"sigs.k8s.io/controller-runtime/pkg/cache"
+	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/metrics/server"
 	"sigs.k8s.io/controller-runtime/pkg/webhook"
 	"sigs.k8s.io/controller-runtime/pkg/webhook/admission"
@@ -53,6 +58,15 @@ func main() {
 		HealthProbeBindAddress: probeAddr,
 		LeaderElection:         enableLeaderElection,
 		LeaderElectionID:       "example-operator-lock",
+		Cache: cache.Options{
+			ByObject: map[client.Object]cache.ByObject{
+				&corev1.Secret{}: {
+					Label: labels.SelectorFromSet(map[string]string{
+						"app.kubernetes.io/managed-by": "cpln-operator",
+					}),
+				},
+			},
+		},
 		WebhookServer: webhook.NewServer(webhook.Options{
 			Port:     common.GetEnvInt("WEBHOOK_PORT", 9443),
 			CertDir:  common.GetEnvStr("TLS_CERT_DIR", "/cert"),
@@ -66,7 +80,7 @@ func main() {
 	}
 
 	if err = controllers.BuildControllers(mgr); err != nil {
-		setupLog.Error(err, "Unable to create controller", "controller", "CplnCRDController")
+		setupLog.Error(err, "Unable to create controller", "controller", "controller")
 		os.Exit(1)
 	}
 
@@ -84,7 +98,7 @@ func main() {
 	}
 
 	mgr.GetWebhookServer().Register("/mutate", &admission.Webhook{
-		Handler: controllers.CrMutator{},
+		Handler: mutators.CrMutator{},
 	})
 
 	// Start the manager

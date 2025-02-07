@@ -1,11 +1,12 @@
 package common
 
 const (
-	UID_LABEL    = "ownerUID"
-	API_GROUP    = "cpln.io"
-	API_REVISION = "v1"
-	API_VERSION  = API_GROUP + "/" + API_REVISION
-	FINALIZER    = "cpln.io/sync-protection"
+	UID_LABEL            = "ownerUID"
+	API_GROUP            = "cpln.io"
+	API_REVISION         = "v1"
+	API_VERSION          = API_GROUP + "/" + API_REVISION
+	FINALIZER            = "cpln.io/sync-protection"
+	CONTROLLER_NAMESPACE = "controlplane"
 
 	KIND_WORKLOAD                   = "workload"
 	KIND_VOLUME_SET                 = "volumeset"
@@ -17,6 +18,8 @@ const (
 	KIND_CONTAINER_STATUS           = "containerstatus"
 	KIND_IMAGE                      = "image"
 	KIND_USER                       = "user"
+	KIND_NATIVE_SECRET              = "Secret"
+	KIND_CPLN_SECRET                = "secret"
 
 	RESOURCE_POLICY_ANNOTATION = "cpln.io/resource-policy"
 	RESOURCE_POLICY_KEEP       = "keep"

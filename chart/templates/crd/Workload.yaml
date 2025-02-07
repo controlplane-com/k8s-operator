@@ -63,6 +63,15 @@ spec:
                       type: array
                     gpu:
                       properties:
+                        custom:
+                          properties:
+                            quantity:
+                              type: number
+                            resource:
+                              type: string
+                            runtimeClass:
+                              type: string
+                          type: object
                         nvidia:
                           properties:
                             model:
@@ -1234,6 +1243,8 @@ spec:
                 properties:
                   downstreamOnly:
                     type: boolean
+                  healthStatusMessage:
+                    type: string
                   lastProcessedGeneration:
                     type: number
                   lastSyncTime:

@@ -34,3 +34,26 @@ var PersistentVolumeStatusGVK = schema.GroupVersionKind{
 	Version: API_REVISION,
 	Kind:    KIND_PERSISTENT_VOLUME_STATUS,
 }
+var CplnSecretGVK = schema.GroupVersionKind{
+	Group:   API_GROUP,
+	Version: API_REVISION,
+	Kind:    KIND_CPLN_SECRET,
+}
+var NativeSecretGVK = schema.GroupVersionKind{
+	Group:   "",
+	Version: "v1",
+	Kind:    KIND_NATIVE_SECRET,
+}
+
+func IsGvcScoped(kind string) bool {
+	switch kind {
+	case "workload":
+		return true
+	case "volumeset":
+		return true
+	case "identity":
+		return true
+	default:
+		return false
+	}
+}

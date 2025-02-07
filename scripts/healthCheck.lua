@@ -4,6 +4,21 @@ function isDownstreamOnly(o)
   return o.status and o.status.operator and o.status.operator.downstreamOnly == true
 end
 
+hs.message = ""
+if obj and obj.metadata and obj.metadata.annotations and obj.metadata.annotations["cpln.io/sync-health-message"] then
+    hs.message = obj.metadata.annotations["cpln.io/sync-health-message"]
+elseif obj and obj.status and obj.status.operator and obj.status.operator.validationError then
+    hs.message = obj.status.operator.validationError
+elseif obj and obj.status and obj.status.operator and obj.status.operator.healthStatusMessage then
+    hs.message = obj.status.operator.healthStatusMessage
+end
+
+
+if obj and obj.metadata and obj.metadata.annotations and obj.metadata.annotations["cpln.io/sync-health-status"] then
+    hs.status = obj.metadata.annotations["cpln.io/sync-health-status"]
+    return hs
+end
+
 if obj.metadata
   and obj.metadata.deletionTimestamp ~= nil
   and obj.status
@@ -41,7 +56,6 @@ if obj.status
   and obj.status.phase == "Unhealthy"
 then
   hs.status = "Degraded"
-  hs.message = ""
   return hs
 end
 
@@ -50,7 +64,6 @@ if obj.status
   and obj.status.phase == "Suspended"
 then
   hs.status = "Suspended"
-  hs.message = ""
   return hs
 end
 
@@ -59,7 +72,6 @@ if obj.status
   and obj.status.phase == "Pending"
 then
   hs.status = "Progressing"
-  hs.message = ""
   return hs
 end
 
@@ -68,7 +80,6 @@ if obj.status
   and obj.status.phase == "Ready"
 then
   hs.status = "Healthy"
-  hs.message = ""
   return hs
 end
 

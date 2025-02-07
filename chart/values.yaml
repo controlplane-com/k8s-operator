@@ -3,7 +3,7 @@ env:
   CPLN_API_URL: https://api.cpln.io
   CPLN_WORKLOAD_STATUS_URL: wss://workload-status.cpln.io/register
   WEBHOOK_PORT: 9443
-  CONTROLLER_ENABLED: true
+  CONTROLLER_ENABLED: false
   RECONCILE_INTERVAL_SECONDS: 30
   TLS_CERT_DIR: /cert
   TLS_CERT_NAME: tls.crt

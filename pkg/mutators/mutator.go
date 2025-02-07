@@ -1,4 +1,4 @@
-package controllers
+package mutators
 
 import (
 	"context"
@@ -12,6 +12,17 @@ import (
 )
 
 type CrMutator struct {
+}
+
+var ignoredKinds = []string{
+	common.KIND_DEPLOYMENT,
+	common.KIND_DEPLOYMENT_VERSION,
+	common.KIND_CONTAINER_STATUS,
+	common.KIND_JOB_EXECUTION_STATUS,
+	common.KIND_VOLUME_SET_STATUS_LOCATION,
+	common.KIND_PERSISTENT_VOLUME_STATUS,
+	common.KIND_IMAGE,
+	common.KIND_USER,
 }
 
 func (c CrMutator) Handle(_ context.Context, req admission.Request) admission.Response {

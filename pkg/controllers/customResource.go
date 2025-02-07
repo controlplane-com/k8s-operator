@@ -12,79 +12,6 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
-var excludedFields = map[string]bool{
-	"apiVersion": false,
-	"metadata":   false,
-	"org":        false,
-}
-
-func isGvcScoped(kind string) bool {
-	switch kind {
-	case "workload":
-		return true
-	case "volumeset":
-		return true
-	case "identity":
-		return true
-	default:
-		return false
-	}
-}
-
-func cplnName(cr *unstructured.Unstructured) string {
-	m, ok := cr.Object["metadata"].(map[string]any)
-	if !ok {
-		return cr.GetName()
-	}
-	annotations, ok := m["annotations"].(map[string]any)
-	if !ok {
-		return cr.GetName()
-	}
-	replacement, ok := annotations["cpln.io/name-replacement"].(string)
-	if !ok {
-		return cr.GetName()
-	}
-	return replacement
-}
-
-func toCplnFormat(cr *unstructured.Unstructured) (map[string]any, error) {
-	crCopy := cr.DeepCopy()
-	//convert metadata into name/gvc
-	//remove all k8s boilerplate
-	cpln := map[string]any{}
-	cpln["name"] = cplnName(crCopy)
-	for key, prop := range crCopy.Object {
-		if keep, ok := excludedFields[key]; ok && !keep {
-			continue
-		}
-		cpln[key] = prop
-	}
-	//Status can't be touched by users
-	delete(cpln, "status")
-	return cpln, nil
-}
-
-func toK8sFormat(template *unstructured.Unstructured, org string, gvc string, cpln map[string]any) (*unstructured.Unstructured, error) {
-	//convert name/gvc into metadata name and namespace
-	//add k8s boilerplate
-	cr := &unstructured.Unstructured{
-		Object: map[string]any{},
-	}
-	for key, val := range cpln {
-		cr.Object[key] = val
-	}
-	cr.Object["org"] = org
-	if gvc != "" {
-		cr.Object["gvc"] = gvc
-	}
-	cr.Object["metadata"] = template.Object["metadata"]
-	cr.SetAPIVersion(common.API_VERSION)
-	cr.SetResourceVersion(template.GetResourceVersion())
-	cr.SetKind(template.GetKind())
-	cr.SetNamespace(template.GetNamespace())
-	return cr, nil
-}
-
 func unstructuredCR(gvk schema.GroupVersionKind, namespace, name string, body any, parent *unstructured.Unstructured) (*unstructured.Unstructured, error) {
 	obj := &unstructured.Unstructured{}
 
@@ -103,7 +30,7 @@ func unstructuredCR(gvk schema.GroupVersionKind, namespace, name string, body an
 	obj.Object = spec
 	obj.SetGroupVersionKind(gvk)
 	obj.Object["org"] = parent.Object["org"]
-	if isGvcScoped(gvk.Kind) {
+	if common.IsGvcScoped(gvk.Kind) {
 		obj.Object["gvc"] = parent.Object["gvc"]
 	}
 	obj.SetName(fmt.Sprintf("%s.%s", name, parent.GetName()))

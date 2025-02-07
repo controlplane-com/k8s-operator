@@ -263,10 +263,6 @@ spec:
                           utilizationThreshold:
                             type: number
                         type: object
-                      azureTags:
-                        additionalProperties:
-                          type: string
-                        type: object
                       image:
                         properties:
                           recommended:
@@ -1121,6 +1117,8 @@ spec:
                 properties:
                   downstreamOnly:
                     type: boolean
+                  healthStatusMessage:
+                    type: string
                   lastProcessedGeneration:
                     type: number
                   lastSyncTime:

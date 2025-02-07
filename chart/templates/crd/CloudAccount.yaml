@@ -60,6 +60,8 @@ spec:
                 properties:
                   downstreamOnly:
                     type: boolean
+                  healthStatusMessage:
+                    type: string
                   lastProcessedGeneration:
                     type: number
                   lastSyncTime:

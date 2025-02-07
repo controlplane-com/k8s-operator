@@ -1,12 +1,11 @@
 package controllers
 
 import (
-	"context"
 	"fmt"
 	"github.com/controlplane-com/k8s-operator/pkg/common"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
-	"sigs.k8s.io/controller-runtime/pkg/client"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -98,23 +97,15 @@ func operatorStatus(cr *unstructured.Unstructured) map[string]any {
 	return cr.Object["status"].(map[string]any)["operator"].(map[string]any)
 }
 
-func updateStatusWithSyncFailure(ctx context.Context, client client.Client, cr *unstructured.Unstructured, errorMessage string) error {
-	syncFailed(cr, errorMessage)
-	return client.Status().Update(ctx, cr)
-}
-
-func updateStatusWithSyncSuccess(ctx context.Context, client client.Client, cr *unstructured.Unstructured, newStatus any) error {
-	synced(cr, false)
-	st := cr.Object["status"].(map[string]any)
-	if m, ok := newStatus.(map[string]any); ok {
-		for k, v := range m {
-			if k == "operator" {
-				continue
-			}
-			st[k] = v
-		}
+func isReady(cr *unstructured.Unstructured) bool {
+	if _, ok := cr.Object["status"]; !ok {
+		return false
 	}
-	return client.Status().Update(ctx, cr)
+	status := cr.Object["status"].(map[string]any)
+	if status["phase"] == "Ready" {
+		return true
+	}
+	return false
 }
 
 func ready(cr *unstructured.Unstructured) {
@@ -129,9 +120,52 @@ func ready(cr *unstructured.Unstructured) {
 			"type":   "Ready",
 		},
 	}
+	op := operatorStatus(cr)
+	op["healthStatusMessage"] = ""
 }
 
-func unready(cr *unstructured.Unstructured) {
+func isUnhealthy(cr *unstructured.Unstructured) bool {
+	if _, ok := cr.Object["status"]; !ok {
+		return false
+	}
+	status := cr.Object["status"].(map[string]any)
+	if status["phase"] == "Unhealthy" {
+		return true
+	}
+	return false
+}
+
+func addErrorMessages(cr *unstructured.Unstructured, errorMessages ...string) {
+	status := operatorStatus(cr)
+	status["healthStatusMessage"] = strings.Join(errorMessages, "\n")
+}
+
+func unhealthy(cr *unstructured.Unstructured) {
+	if _, ok := cr.Object["status"].(map[string]any); !ok {
+		cr.Object["status"] = map[string]any{}
+	}
+	status := cr.Object["status"].(map[string]any)
+	status["phase"] = "Unhealthy"
+	status["conditions"] = []map[string]any{
+		{
+			"status": "False",
+			"type":   "Ready",
+		},
+	}
+}
+
+func isProgressing(cr *unstructured.Unstructured) bool {
+	if _, ok := cr.Object["status"]; !ok {
+		return false
+	}
+	status := cr.Object["status"].(map[string]any)
+	if status["phase"] == "Pending" {
+		return true
+	}
+	return false
+}
+
+func progressing(cr *unstructured.Unstructured) {
 	if _, ok := cr.Object["status"]; !ok {
 		cr.Object["status"] = map[string]any{}
 	}
@@ -143,6 +177,17 @@ func unready(cr *unstructured.Unstructured) {
 			"type":   "Ready",
 		},
 	}
+}
+
+func isSuspended(cr *unstructured.Unstructured) bool {
+	if _, ok := cr.Object["status"]; !ok {
+		return false
+	}
+	status := cr.Object["status"].(map[string]any)
+	if status["phase"] == "Suspended" {
+		return true
+	}
+	return false
 }
 
 func suspended(cr *unstructured.Unstructured) {
@@ -159,7 +204,7 @@ func suspended(cr *unstructured.Unstructured) {
 	}
 }
 
-func synced(cr *unstructured.Unstructured, downstreamOnly bool) {
+func synced(cr *unstructured.Unstructured, downstreamOnly bool, newStatus any) {
 	o := operatorStatus(cr)
 	g := generation(cr)
 	o["lastSyncedGeneration"] = g
@@ -168,6 +213,16 @@ func synced(cr *unstructured.Unstructured, downstreamOnly bool) {
 	delete(o, "lastSyncTime")
 	delete(o, "syncRetries")
 	delete(o, "validationError")
+
+	st := cr.Object["status"].(map[string]any)
+	if m, ok := newStatus.(map[string]any); ok {
+		for k, v := range m {
+			if k == "operator" {
+				continue
+			}
+			st[k] = v
+		}
+	}
 }
 
 func syncFailed(cr *unstructured.Unstructured, errorMessage string) {
@@ -180,7 +235,7 @@ func syncFailed(cr *unstructured.Unstructured, errorMessage string) {
 	o["lastSyncTime"] = time.Now().UTC().Format(time.RFC3339)
 	r, ok := o["syncRetries"].(int64)
 	if !ok {
-		o["syncRetries"] = 0
+		o["syncRetries"] = int64(0)
 	} else {
 		o["syncRetries"] = r + 1
 	}

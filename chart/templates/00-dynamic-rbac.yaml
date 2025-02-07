@@ -133,6 +133,13 @@ rules:
 - apiGroups:
   - cpln.io
   resources:
+  - secrets
+  - secrets/status
+  verbs:
+  - '*'
+- apiGroups:
+  - cpln.io
+  resources:
   - serviceaccounts
   - serviceaccounts/status
   verbs:
