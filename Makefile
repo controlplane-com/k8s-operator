@@ -1,4 +1,4 @@
-IMG ?= gcr.io/cpln-build/cpln-operator:v0.2.0
+IMG ?= gcr.io/cpln-build/cpln-operator:v0.2.1
 
 .PHONY: generate-rbac
 generate-rbac:

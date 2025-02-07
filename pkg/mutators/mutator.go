@@ -43,6 +43,14 @@ func (c CrMutator) Handle(_ context.Context, req admission.Request) admission.Re
 		return admission.Allowed("no metadata field - ignoring")
 	}
 
+	labels, ok := metadata["labels"].(map[string]interface{})
+	if !ok {
+		return admission.Allowed("no labels field - ignoring")
+	}
+	if labels["app.kubernetes.io/managed-by"] != "cpln-operator" {
+		return admission.Allowed("resource is not managed by cpln-operator - ignoring")
+	}
+
 	if metadata["deletionTimestamp"] != nil {
 		return admission.Allowed("resource has been deleted - ignoring")
 	}

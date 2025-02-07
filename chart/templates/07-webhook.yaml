@@ -9,7 +9,13 @@ webhooks:
     admissionReviewVersions: ["v1", "v1beta1"]
     sideEffects: None
     matchPolicy: Equivalent
-    namespaceSelector: {}
+    # Exclude any namespace with skip-webhook=true
+    namespaceSelector:
+      matchExpressions:
+        - key: skip-webhook
+          operator: NotIn
+          values:
+            - "true"
     objectSelector: {}
     clientConfig:
       service:

@@ -12,7 +12,7 @@ resources using Kubernetes custom resource definitions (CRDs).
    way to get started.
 2. (Optional) [Install ArgoCD](https://argo-cd.readthedocs.io/en/stable/getting_started/)
    - If you decide to install Argo later, you'll need to upgrade your helm installation to get the spiffy Argo-specific
-     features.
+     features. To do so, run:
      ``` shell 
      helm upgrade cpln-operator cpln/cpln-operator
      ``` 
@@ -21,10 +21,12 @@ resources using Kubernetes custom resource definitions (CRDs).
    helm repo add cpln https://controlplane-com.github.io/k8s-operator 
    helm install cpln-operator cpln/cpln-operator
    ```
-4. Provision a [Service Account](https://docs.controlplane.com/reference/serviceaccount#service-account), taking note of 
-   the generated token.
-5. Create a secret named after your org in the `controlplane` namespace of your Kubernetes cluster. 
-   **NOTE**: the app.kubernetes.io/managed-by label is required. See the example below.
+4. Provision a [Control Plane Service Account](https://docs.controlplane.com/reference/serviceaccount#service-account).
+   - Create the Service Account as a member of the `superusers` group to start. Later, you can move it to a group with narrower permissions if you wish
+   - Create a [key](https://docs.controlplane.com/reference/serviceaccount#service-account-keys), and store it somewhere for safe keeping
+5. Create a secret named after your org in the `controlplane` namespace of your Kubernetes cluster. Base64 encode the key you created in step 4 and store it a secret like the one below.
+   
+   **NOTE**: the app.kubernetes.io/managed-by label is required.
    ```yaml
    apiVersion: v1
    data:
