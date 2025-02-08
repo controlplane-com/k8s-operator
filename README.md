@@ -55,7 +55,7 @@ configured to sync the resource with Control Plane.
 
 ## Preventing Resource Deletion
 Deleting a Kubernetes resource while the controller is installed and running will remove the corresponding resource 
-from Control Plane. You can prevent this by adding a special annotation to the resource anytime before deletion. e.g.
+from Control Plane. You can prevent this by adding a special annotation to the Kubernetes resource anytime before deletion. e.g.
 ``` yaml
 kind: gvc
 metadata:
