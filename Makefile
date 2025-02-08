@@ -49,3 +49,16 @@ package-chart:
 	helm package chart --destination published-charts
 	helm repo index . --url https://controlplane-com.github.io/k8s-operator
 
+
+.PHONY: install-secret
+install-secret:
+	@if [ -z "$(org)" ] || [ -z "$(key)" ]; then \
+		echo "Error: Required parameters missing"; \
+		echo "Usage: make install-secret org=<org-name> key=<org-key>"; \
+		exit 1; \
+	fi
+	bash scripts/install-secret.sh "$(org)" "$(key)"
+
+.PHONY: cluster-quickstart
+cluster-quickstart:
+	bash scripts/cluster-quickstart.sh;
