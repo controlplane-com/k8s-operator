@@ -1,4 +1,4 @@
-image: gcr.io/cpln-build/cpln-operator:v0.2.1
+image: gcr.io/cpln-build/cpln-operator:v0.2.3
 env:
   CPLN_API_URL: https://api.cpln.io
   CPLN_WORKLOAD_STATUS_URL: wss://workload-status.cpln.io/register

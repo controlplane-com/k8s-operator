@@ -83,7 +83,7 @@ func syncDeploymentVersions(ctx *syncContext, versions []deployment.DeploymentVe
 		synced(cr, true, nil)
 		versionCRs = append(versionCRs, cr)
 	}
-	deletedVersions, err := syncCRs(ctx, versionCRs, common.DeploymentVersionGVK)
+	deletedVersions, err := syncCRs(ctx.copy(), versionCRs, common.DeploymentVersionGVK)
 	if err != nil {
 		return err
 	}
@@ -91,8 +91,9 @@ func syncDeploymentVersions(ctx *syncContext, versions []deployment.DeploymentVe
 		if slices.Contains(deletedVersions, v.Name) {
 			continue
 		}
-		ctx.parent = versionCRs[i]
-		if err = syncContainerStatuses(ctx.copy(), common.MapValues(v.Containers)); err != nil {
+		versionCtx := ctx.copy()
+		versionCtx.parent = versionCRs[i]
+		if err = syncContainerStatuses(versionCtx, common.MapValues(v.Containers)); err != nil {
 			return err
 		}
 	}
@@ -167,22 +168,35 @@ func syncContainerStatuses(ctx *syncContext, containers []containerstatus.Contai
 	return err
 }
 
+func getMessage(m map[string]any) string {
+	if m == nil {
+		return ""
+	}
+	message, ok := m["message"].(string)
+	if !ok {
+		return ""
+	}
+	return message
+}
+
 func collectDeploymentMessages(deployments []*unstructured.Unstructured) []string {
 	var messages []string
 	for _, d := range deployments {
 		status, ok := d.Object["status"].(map[string]any)
 		if ok {
-			messages = append(messages, status["message"].(string))
+			messages = append(messages, getMessage(status))
 		}
 		for _, v := range status["versions"].([]any) {
 			v := v.(map[string]any)
-			if v["message"] != nil {
-				messages = append(messages, v["message"].(string))
+			m := getMessage(v)
+			if m != "" {
+				messages = append(messages, m)
 			}
 			for _, c := range v["containers"].(map[string]any) {
 				c := c.(map[string]any)
-				if c["message"] != nil {
-					messages = append(messages, c["message"].(string))
+				m := getMessage(c)
+				if m != "" {
+					messages = append(messages, m)
 				}
 			}
 		}

@@ -97,17 +97,6 @@ func operatorStatus(cr *unstructured.Unstructured) map[string]any {
 	return cr.Object["status"].(map[string]any)["operator"].(map[string]any)
 }
 
-func isReady(cr *unstructured.Unstructured) bool {
-	if _, ok := cr.Object["status"]; !ok {
-		return false
-	}
-	status := cr.Object["status"].(map[string]any)
-	if status["phase"] == "Ready" {
-		return true
-	}
-	return false
-}
-
 func ready(cr *unstructured.Unstructured) {
 	if _, ok := cr.Object["status"]; !ok {
 		cr.Object["status"] = map[string]any{}

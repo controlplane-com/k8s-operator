@@ -85,18 +85,21 @@ func syncCRs(ctx *syncContext, desiredChildren []*unstructured.Unstructured, chi
 			//Update existing CRs, preserving the uid label
 			addLabel(d, common.UID_LABEL, e.GetLabels()[common.UID_LABEL])
 			d.SetResourceVersion(e.GetResourceVersion())
-			statusUpdate := buildStatusUpdate(d)
-			if err = ctx.c.Status().Update(ctx, statusUpdate); err != nil {
+			ds := buildStatusUpdate(d)
+			if err = ctx.c.Update(ctx, d); err != nil {
 				return deletedNames, err
 			}
-			d.SetResourceVersion(statusUpdate.GetResourceVersion())
-			if err = ctx.c.Update(ctx, d); err != nil {
+			ds.SetResourceVersion(d.GetResourceVersion())
+			if err = ctx.c.Status().Update(ctx, ds); err != nil {
 				return deletedNames, err
 			}
 			continue
 		}
 		//Create missing CRs
 		if err = ctx.c.Create(ctx, d); err != nil {
+			return deletedNames, err
+		}
+		if err = ctx.c.Status().Update(ctx, d); err != nil {
 			return deletedNames, err
 		}
 	}

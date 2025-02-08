@@ -206,6 +206,10 @@ func (r *controller) handleResourceDeletion(ctx cpln.Context, cr *unstructured.U
 	if resourcePolicy(cr) != common.RESOURCE_POLICY_KEEP {
 		err := r.cplnConnector.Delete(ctx, cr)
 		if err != nil {
+			syncFailed(cr, err.Error())
+			if err := r.k8sConnector.WriteStatus(ctx, cr); err != nil {
+				l.Error(err, "Error updating status with sync failure")
+			}
 			l.Error(err, "Failed to delete from Cpln")
 			if errors.Is(err, common.DependentResourceErr) {
 				return defaultResult, nil

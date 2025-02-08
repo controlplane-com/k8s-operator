@@ -6,9 +6,11 @@ import (
 	"fmt"
 	"github.com/controlplane-com/k8s-operator/pkg/common"
 	admissionv1 "k8s.io/api/admission/v1"
+	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"net/http"
 	"sigs.k8s.io/controller-runtime/pkg/webhook/admission"
 	"slices"
+	"strings"
 )
 
 type CrMutator struct {
@@ -29,42 +31,41 @@ func (c CrMutator) Handle(_ context.Context, req admission.Request) admission.Re
 	if req.Operation != admissionv1.Create && req.Operation != admissionv1.Update {
 		return admission.Allowed("No mutation for non-create/update")
 	}
-	var unstructuredObj map[string]interface{}
-	err := json.Unmarshal(req.Object.Raw, &unstructuredObj)
+	u := &unstructured.Unstructured{
+		Object: make(map[string]any),
+	}
+	err := json.Unmarshal(req.Object.Raw, &u.Object)
 	if err != nil {
 		return admission.Errored(http.StatusBadRequest, fmt.Errorf("could not unmarshal raw object: %v", err))
 	} // We navigate to metadata.finalizers in the unstructured object
-	kind := unstructuredObj["kind"].(string)
+	kind := u.GetKind()
 	if slices.Contains(ignoredKinds, kind) {
 		return admission.Allowed("kind is ignored - ignoring")
 	}
-	metadata, ok := unstructuredObj["metadata"].(map[string]interface{})
-	if !ok {
-		return admission.Allowed("no metadata field - ignoring")
+	labels := u.GetLabels()
+	deletionTimestamp := u.GetDeletionTimestamp()
+	if strings.ToLower(kind) == "secret" && u.GetAPIVersion() == "v1" {
+		if len(labels) == 0 {
+			return admission.Allowed("no labels field - ignoring")
+		}
+		if labels["app.kubernetes.io/managed-by"] != "cpln-operator" {
+			return admission.Allowed("resource is not managed by cpln-operator - ignoring")
+		}
 	}
 
-	labels, ok := metadata["labels"].(map[string]interface{})
-	if !ok {
-		return admission.Allowed("no labels field - ignoring")
-	}
-	if labels["app.kubernetes.io/managed-by"] != "cpln-operator" {
-		return admission.Allowed("resource is not managed by cpln-operator - ignoring")
-	}
-
-	if metadata["deletionTimestamp"] != nil {
+	if deletionTimestamp != nil {
 		return admission.Allowed("resource has been deleted - ignoring")
 	}
 
-	finalizers, ok := metadata["finalizers"].([]interface{})
-	if !ok {
-		// if finalizers is nil or not an array, we create an empty array
-		finalizers = make([]interface{}, 0)
+	finalizers := u.GetFinalizers()
+	if finalizers == nil {
+		finalizers = []string{}
 	}
 
 	// Check if our required finalizer is present
 	found := false
-	for _, fz := range finalizers {
-		if str, ok := fz.(string); ok && str == common.FINALIZER {
+	for _, f := range finalizers {
+		if f == common.FINALIZER {
 			found = true
 			break
 		}
@@ -73,11 +74,11 @@ func (c CrMutator) Handle(_ context.Context, req admission.Request) admission.Re
 	if !found {
 		// add finalizer
 		finalizers = append(finalizers, common.FINALIZER)
-		metadata["finalizers"] = finalizers
+		u.SetFinalizers(finalizers)
 	}
 
 	// Re-marshal to JSON
-	marshaledObj, err := json.Marshal(unstructuredObj)
+	marshaledObj, err := json.Marshal(u.Object)
 	if err != nil {
 		return admission.Errored(http.StatusInternalServerError, fmt.Errorf("failed to marshal mutated object: %v", err))
 	}

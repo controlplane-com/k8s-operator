@@ -87,7 +87,9 @@ func (s *secretConnector) Cleanup(ctx context.Context, parent *unstructured.Unst
 	}
 	//Delete the child
 	if err = s.Connector.Cleanup(ctx, child); err != nil {
-		return err
+		if !k8serrors.IsNotFound(err) {
+			return err
+		}
 	}
 	//Delete the parent
 	return s.Connector.Cleanup(ctx, parent)

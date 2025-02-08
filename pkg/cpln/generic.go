@@ -181,12 +181,16 @@ func (g *genericConnector) Delete(ctx Context, cr *unstructured.Unstructured) er
 	if err != nil {
 		return err
 	}
-	if resp.StatusCode == http.StatusBadRequest {
-		return common.DependentResourceErr
-	}
 	defer func() { _ = resp.Body.Close() }()
+	body, _ := io.ReadAll(resp.Body)
+	if resp.StatusCode == http.StatusBadRequest {
+		return fmt.Errorf("unable to delete Control Plane resource: %s", body)
+	}
+	//Some resources return 200 on GET but 404 on DELETE. Strange.
+	if resp.StatusCode == http.StatusNotFound {
+		return nil
+	}
 	if resp.StatusCode >= 300 {
-		body, _ := io.ReadAll(resp.Body)
 		return fmt.Errorf("DELETE %s -> status %d: %s", url, resp.StatusCode, string(body))
 	}
 	return nil

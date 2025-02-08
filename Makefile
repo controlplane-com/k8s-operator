@@ -1,5 +1,5 @@
-IMG ?= gcr.io/cpln-build/cpln-operator:v0.2.1
-
+IMG ?= gcr.io/cpln-build/cpln-operator:v0.2.3
+PLATFORM ?= linux/arm64,linux/amd64
 .PHONY: generate-rbac
 generate-rbac:
 	@echo "==> Generating RBAC from CRD files..."
@@ -34,12 +34,18 @@ upgrade: generate
 .PHONY: build-image
 build-image:
 	docker buildx build \
-    	--platform="linux/arm64,linux/amd64" \
+    	--platform="${PLATFORM}" \
     	 -t ${IMG} .
 
 .PHONY: push-image
 push-image:
 	docker buildx build \
 		--push \
-    	--platform="linux/arm64,linux/amd64" \
+    	--platform="${PLATFORM}" \
     	 -t ${IMG} .
+
+.PHONY: update-index
+package-chart:
+	helm package chart --destination published-charts
+	helm repo index . --url https://controlplane-com.github.io/k8s-operator
+
