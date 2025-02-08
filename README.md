@@ -103,9 +103,52 @@ Helm chart, and you're off to the races!
 
 ![Argo Example](images/img.png)
 
-### Example Repository
+### Example App
+Here's a example Argo Application. It pulls a helm chart located in the repository: [https://github.com/cuppojoe/argo-example](https://github.com/cuppojoe/argo-example).
+Be sure to replace `your-org-name-here` with your Control Plane org name. Note that the domain object in this example will not become healthy, since the domain
+is not owned by your org. It is there for illustrative purposes only.
 
-[https://github.com/cuppojoe/argo-example](https://github.com/cuppojoe/argo-example)
+Simply save the yaml below to a file (e.g. `app.yaml`), and run something like
+```shell 
+kubectl -n argocd apply -f app.yaml
+```
+
+```yaml 
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: my-helm-app
+  namespace: argocd  # This is usually where Argo CD is installed
+spec:
+  project: default
+  destination:
+    server: 'https://kubernetes.default.svc'  # Cluster API server URL
+    namespace: fresh                  # Target namespace in your cluster
+  source:
+    repoURL: 'https://cuppojoe.github.io/argo-example/'  # URL of your Helm repository
+    chart: argo-example                              # Name of the Helm chart
+    targetRevision: 0.2.3                        # Chart version (can be a version, branch, etc.)
+    helm:
+      # Inline values override (optional)
+      values: |
+        org: your-org-name-here
+  syncPolicy:
+    automated:
+      prune: true      # Automatically delete resources that are no longer defined in the chart
+      selfHeal: true   # Automatically sync drifted resources
+
+```
+### Connecting to the Argo UI
+For a fresh install, run the commands below to print the initial admin password, and forward port 18081 to the Argo UI.
+```shell 
+#print the initial admin password
+kubectl -n argocd get secret argocd-initial-admin-secret -o json | jq '.data.password' -r | base64 -d -
+
+#connect to the argo UI
+kubectl -n argocd port-forward service/argocd-server 18081:443
+```
+Next, open a browser window and navigate to localhost:18081. Trust the self-signed certificate, and log in with user: admin, pass: <initial-admin-password>
+![argo-login.png](images/argo-login.png)
 
 ## Supported Kinds
 
