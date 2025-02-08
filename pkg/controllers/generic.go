@@ -30,7 +30,7 @@ func (g *genericConnector) Read(ctx context.Context, name types.NamespacedName) 
 
 	if err := g.Get(ctx, name, cr); err != nil {
 		if metav1.IsNotFound(err) {
-			l.Info("CRD resource not found; must have been deleted")
+			l.Info("k8s resource not found; must have been deleted")
 			return nil, nil
 		}
 		return nil, err

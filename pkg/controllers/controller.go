@@ -370,9 +370,9 @@ func (r *controller) syncFromCplnToK8s(ctx cpln.Context, log logr.Logger, cr *un
 		log.Info("Resource not found on Control Plane, deleting from Kubernetes")
 		if err := r.k8sConnector.Cleanup(ctx, cr); err != nil {
 			log.Error(err, "Error deleting from Kubernetes")
-			return zeroResult, nil
+			return zeroResult, err
 		}
-		return zeroResult, err
+		return zeroResult, nil
 	}
 
 	var cplnResourceMap map[string]any

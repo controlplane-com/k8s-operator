@@ -25,6 +25,8 @@ rules:
       - get
       - list
       - watch
+      - delete
+      - update
 ---
 
 kind: ClusterRoleBinding
