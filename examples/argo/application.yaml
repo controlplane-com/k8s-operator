@@ -1,20 +1,22 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: example
-  namespace: argocd
+  name: my-helm-app
+  namespace: argocd  # This is usually where Argo CD is installed
 spec:
   project: default
-  source:
-    repoURL: https://github.com/Cuppojoe/argo-example.git
-    path: manifests
-    targetRevision: HEAD
-    directory:
-      recurse: true
-      jsonnet: {}
   destination:
-    server: https://kubernetes.default.svc
+    server: 'https://kubernetes.default.svc'  # Cluster API server URL
+    namespace: fresh                  # Target namespace in your cluster
+  source:
+    repoURL: 'https://cuppojoe.github.io/argo-example/'  # URL of your Helm repository
+    chart: argo-example                              # Name of the Helm chart
+    targetRevision: 0.2.3                        # Chart version (can be a version, branch, etc.)
+    helm:
+      # Inline values override (optional)
+      values: |
+        org: your-org-name-here
   syncPolicy:
     automated:
-      prune: true
-      selfHeal: true
+      prune: true      # Automatically delete resources that are no longer defined in the chart
+      selfHeal: true   # Automatically sync drifted resources
