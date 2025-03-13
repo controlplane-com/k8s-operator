@@ -1,4 +1,5 @@
-IMG ?= gcr.io/cpln-build/cpln-operator:v0.3.0
+VERSION ?= v0.3.0
+IMG ?= gcr.io/cpln-build/cpln-operator:${VERSION}
 PLATFORM ?= linux/arm64,linux/amd64
 .PHONY: generate-rbac
 generate-rbac:
@@ -46,7 +47,7 @@ push-image:
 
 .PHONY: update-index
 package-chart:
-	helm package chart --destination published-charts
+	helm package chart --destination published-charts --version $(VERSION)
 	helm repo index . --url https://controlplane-com.github.io/k8s-operator
 
 
