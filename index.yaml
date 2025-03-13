@@ -4,7 +4,47 @@ entries:
   - annotations:
       category: Helm Chart
     apiVersion: v2
-    created: "2025-02-08T02:10:06.297252078-05:00"
+    created: "2025-03-13T12:29:01.621481111-04:00"
+    description: A Helm chart for the Control Plane Kubernetes Operator
+    digest: 9b7031f3165cf583c6cec73c76a0322308031d9184c23b9782aa9989eac06a13
+    keywords:
+    - go
+    - Control Plane
+    - helm
+    maintainers:
+    - email: kyle@controlplane.com
+      name: Kyle Cupp
+    name: cpln-operator
+    sources:
+    - https://github.com/controlplane-com/k8s-operator
+    type: application
+    urls:
+    - https://controlplane-com.github.io/k8s-operator/published-charts/cpln-operator-0.3.0.tgz
+    version: 0.3.0
+  - annotations:
+      category: Helm Chart
+    apiVersion: v2
+    created: "2025-03-13T12:29:01.622486616-04:00"
+    description: A Helm chart for the Control Plane Kubernetes Operator
+    digest: dec00b1470ab099ddcba493e9afe7eb9d884240e327bb131d9169855efdff2c5
+    keywords:
+    - go
+    - Control Plane
+    - helm
+    maintainers:
+    - email: kyle@controlplane.com
+      name: Kyle Cupp
+    name: cpln-operator
+    sources:
+    - https://github.com/controlplane-com/k8s-operator
+    type: application
+    urls:
+    - https://controlplane-com.github.io/k8s-operator/published-charts/cpln-operator-v0.3.0.tgz
+    version: v0.3.0
+  - annotations:
+      category: Helm Chart
+    apiVersion: v2
+    created: "2025-03-13T12:29:01.619467891-04:00"
     description: A Helm chart for the Control Plane Kubernetes Operator
     digest: d909cf13795f8b96a07b1a9f55a95a8db28f1644ab9c3896457c7c633547cf41
     keywords:
@@ -24,7 +64,7 @@ entries:
   - annotations:
       category: Helm Chart
     apiVersion: v2
-    created: "2025-02-08T02:10:06.296670023-05:00"
+    created: "2025-03-13T12:29:01.618827406-04:00"
     description: A Helm chart for the Control Plane Kubernetes Operator
     digest: 4b0657b93f8e5b5e71c3afbac73cf0e534dc95ac81e5a8091ddc5eeb44d71d26
     keywords:
@@ -44,7 +84,7 @@ entries:
   - annotations:
       category: Helm Chart
     apiVersion: v2
-    created: "2025-02-08T02:10:06.295295014-05:00"
+    created: "2025-03-13T12:29:01.618221778-04:00"
     description: A Helm chart for the Control Plane Kubernetes Operator
     digest: 7b58019def4b208ad1f413287d19ba877aeef955b4edef820d7eb39e4d94690b
     keywords:
@@ -64,7 +104,7 @@ entries:
   - annotations:
       category: Helm Chart
     apiVersion: v2
-    created: "2025-02-08T02:10:06.294720492-05:00"
+    created: "2025-03-13T12:29:01.617406948-04:00"
     description: A Helm chart for the Control Plane Kubernetes Operator
     digest: 2ac38e190746081c7c9ddc9b319f937d41fe5ffde58217e9d8e579362fceb1e3
     keywords:
@@ -84,7 +124,7 @@ entries:
   - annotations:
       category: Helm Chart
     apiVersion: v2
-    created: "2025-02-08T02:10:06.29405846-05:00"
+    created: "2025-03-13T12:29:01.616071717-04:00"
     description: A Helm chart for the Control Plane Kubernetes Operator
     digest: 62f84f4bce0582bde8fbe16d0fd19c4353596969c9d7d4bff79747ef26801a0f
     keywords:
@@ -104,7 +144,7 @@ entries:
   - annotations:
       category: Helm Chart
     apiVersion: v2
-    created: "2025-02-08T02:10:06.293379547-05:00"
+    created: "2025-03-13T12:29:01.615410234-04:00"
     description: A Helm chart for the Control Plane Kubernetes Operator
     digest: b0b99811fc37252642ddb58004fad435d2bc739226198a7aa70e6e7e60feac35
     keywords:
@@ -124,7 +164,7 @@ entries:
   - annotations:
       category: Helm Chart
     apiVersion: v2
-    created: "2025-02-08T02:10:06.291742072-05:00"
+    created: "2025-03-13T12:29:01.614826123-04:00"
     description: A Helm chart for the Control Plane Kubernetes Operator
     digest: 46dd833ab5612143da377909aa15f146e71f379f1787fffb94d5fd527f78b60a
     keywords:
@@ -141,4 +181,4 @@ entries:
     urls:
     - https://controlplane-com.github.io/k8s-operator/published-charts/cpln-operator-0.1.0.tgz
     version: 0.1.0
-generated: "2025-02-08T02:10:06.291053054-05:00"
+generated: "2025-03-13T12:29:01.614105594-04:00"
