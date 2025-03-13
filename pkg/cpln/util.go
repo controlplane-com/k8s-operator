@@ -9,6 +9,7 @@ import (
 	"io"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"net/http"
+	"strings"
 )
 
 var k8sBoilerplate = map[string]bool{
@@ -30,6 +31,63 @@ func Name(cr *unstructured.Unstructured) string {
 		return cr.GetName()
 	}
 	return replacement
+}
+
+func StoreTagsAsAnnotations(cr *unstructured.Unstructured, cpln map[string]any) {
+	var tags map[string]any
+	tags, ok := cpln["tags"].(map[string]any)
+	if !ok {
+		return
+	}
+	metadata, ok := cr.Object["metadata"].(map[string]any)
+	if !ok {
+		cr.Object["metadata"] = map[string]any{}
+		metadata = cr.Object["metadata"].(map[string]any)
+	}
+
+	annotations, ok := metadata["annotations"].(map[string]any)
+	if !ok {
+		annotations = map[string]any{}
+	}
+
+	for key := range annotations {
+		if !strings.HasPrefix(key, "cpln.io/") {
+			continue
+		}
+		if _, exists := tags[key]; !exists {
+			delete(annotations, key)
+		}
+	}
+
+	for key, value := range tags {
+		annotations[key] = value
+	}
+	metadata["annotations"] = annotations
+}
+
+func ReadTagsFromAnnotations(cr *unstructured.Unstructured, cpln map[string]any) {
+	var annotations map[string]any
+	metadata, ok := cr.Object["metadata"].(map[string]any)
+	if !ok {
+		return
+	}
+	annotations, ok = metadata["annotations"].(map[string]any)
+	if !ok {
+		return
+	}
+
+	if cpln == nil {
+		return
+	}
+	cplnTags := map[string]any{}
+	//We want users to have full control over the tags that appear on their resources, so we exclude everything that
+	//doesn't begin with cpln.io
+	for key, value := range annotations {
+		if strings.HasPrefix(key, "cpln.io/") {
+			cplnTags[key] = value
+		}
+	}
+	cpln["tags"] = cplnTags
 }
 
 func GetWorkloadDeploymentsFromCpln(ctx Context, connector Connector, cr *unstructured.Unstructured) ([]deployment.Deployment, error) {

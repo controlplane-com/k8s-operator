@@ -65,6 +65,10 @@ func (s secretConverter) K8sFormat(ctx Context, cr *unstructured.Unstructured, c
 	a["cpln.io/org"] = ctx.Org()
 	cr.Object["type"] = strings.ToLower(cr.Object["type"].(string))
 	cr.SetKind(common.KIND_NATIVE_SECRET)
+
+	//Argo doesn't track changes in labels as drift, so we store the tags as annotations instead
+	StoreTagsAsAnnotations(cr, cplnObj)
+
 	cr.SetAnnotations(a)
 	data := cr.Object["data"].(map[string]any)
 	for k, v := range data {
@@ -82,6 +86,9 @@ func (s secretConverter) CplnFormat(cr *unstructured.Unstructured) (map[string]a
 	}
 	cplnResource["kind"] = "secret"
 	cplnResource["type"] = strings.ToLower(cplnResource["type"].(string))
+
+	ReadTagsFromAnnotations(cr, cplnResource)
+
 	data := cplnResource["data"].(map[string]any)
 	for k, v := range data {
 		var decoded = make([]byte, base64.StdEncoding.DecodedLen(len(v.(string))))

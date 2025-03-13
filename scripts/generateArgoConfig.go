@@ -50,11 +50,6 @@ func main() {
 		for _, line := range strings.Split(strings.TrimSuffix(string(healthCheckScript), "\n"), "\n") {
 			customizationsBuilder.WriteString("            " + line + "\n")
 		}
-
-		// Add ignoreDifferences so ArgoCD ignores .metadata.ownerReferences
-		customizationsBuilder.WriteString("\n          ignoreDifferences: |-\n")
-		customizationsBuilder.WriteString("            jsonPointers:\n")
-		customizationsBuilder.WriteString("              - /metadata/ownerReferences\n\n")
 	}
 
 	configMapYaml := fmt.Sprintf(`apiVersion: v1
