@@ -1,4 +1,4 @@
-IMG ?= gcr.io/cpln-build/cpln-operator:v0.2.3
+IMG ?= gcr.io/cpln-build/cpln-operator:v0.3.0
 PLATFORM ?= linux/arm64,linux/amd64
 .PHONY: generate-rbac
 generate-rbac:
