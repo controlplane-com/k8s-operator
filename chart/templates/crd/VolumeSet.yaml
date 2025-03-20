@@ -54,6 +54,20 @@ spec:
                 type: string
               initialCapacity:
                 type: number
+              mountOptions:
+                properties:
+                  resources:
+                    properties:
+                      maxCpu:
+                        type: string
+                      maxMemory:
+                        type: string
+                      minCpu:
+                        type: string
+                      minMemory:
+                        type: string
+                    type: object
+                type: object
               performanceClass:
                 type: string
               snapshots:
