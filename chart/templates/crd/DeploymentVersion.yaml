@@ -95,6 +95,8 @@ spec:
             type: object
           workload:
             type: number
+          zone:
+            type: string
         required:
         - org
         type: object

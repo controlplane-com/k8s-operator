@@ -197,6 +197,8 @@ spec:
                       type: boolean
                     workload:
                       type: number
+                    zone:
+                      type: string
                   type: object
                 type: array
             type: object
