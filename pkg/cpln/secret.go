@@ -4,11 +4,16 @@ import (
 	"context"
 	"encoding/base64"
 	"fmt"
+	"strings"
+
+	"slices"
+
 	"github.com/controlplane-com/k8s-operator/pkg/common"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"sigs.k8s.io/controller-runtime/pkg/client"
-	"strings"
 )
+
+var SPECIAL_SECRET_TYPES = []string{"azure-sdk", "docker", "gcp"}
 
 type secretUrlProvider struct {
 	UrlProvider
@@ -63,13 +68,21 @@ func (s secretConverter) K8sFormat(ctx Context, cr *unstructured.Unstructured, c
 		a = make(map[string]string)
 	}
 	a["cpln.io/org"] = ctx.Org()
-	cr.Object["type"] = strings.ToLower(cr.Object["type"].(string))
+	secretType := strings.ToLower(cr.Object["type"].(string))
+	cr.Object["type"] = secretType
+	isSpecialSecret := s.isSpecialSecret(secretType)
 	cr.SetKind(common.KIND_NATIVE_SECRET)
 
 	//Argo doesn't track changes in labels as drift, so we store the tags as annotations instead
 	StoreTagsAsAnnotations(cr, cplnObj)
 
 	cr.SetAnnotations(a)
+
+	// For special types, expect data as a string
+	if isSpecialSecret {
+		cr.Object["data"] = map[string]any{common.SPECIAL_SECRET_DATA_KEY: cplnObj["data"].(string)}
+	}
+
 	data := cr.Object["data"].(map[string]any)
 	for k, v := range data {
 		var encoded = make([]byte, base64.StdEncoding.EncodedLen(len(v.(string))))
@@ -84,21 +97,38 @@ func (s secretConverter) CplnFormat(cr *unstructured.Unstructured) (map[string]a
 	if err != nil {
 		return nil, err
 	}
+
+	secretType := strings.ToLower(cplnResource["type"].(string))
+	isSpecialSecret := s.isSpecialSecret(secretType)
 	cplnResource["kind"] = "secret"
-	cplnResource["type"] = strings.ToLower(cplnResource["type"].(string))
+	cplnResource["type"] = secretType
 
 	ReadTagsFromAnnotations(cr, cplnResource)
 
 	data := cplnResource["data"].(map[string]any)
-	for k, v := range data {
-		var decoded = make([]byte, base64.StdEncoding.DecodedLen(len(v.(string))))
-		n, err := base64.StdEncoding.Decode(decoded, []byte(v.(string)))
+
+	if isSpecialSecret {
+		decodedBytes, err := base64.StdEncoding.DecodeString(data[common.SPECIAL_SECRET_DATA_KEY].(string))
 		if err != nil {
 			return nil, err
 		}
-		data[k] = string(decoded[:n])
+		cplnResource["data"] = string(decodedBytes)
+	} else {
+		for k, v := range data {
+			var decoded = make([]byte, base64.StdEncoding.DecodedLen(len(v.(string))))
+			n, err := base64.StdEncoding.Decode(decoded, []byte(v.(string)))
+			if err != nil {
+				return nil, err
+			}
+			data[k] = string(decoded[:n])
+		}
 	}
+
 	return cplnResource, nil
+}
+
+func (s secretConverter) isSpecialSecret(secretType string) bool {
+	return slices.Contains(SPECIAL_SECRET_TYPES, secretType)
 }
 
 func NewSecretConverter() Converter {
