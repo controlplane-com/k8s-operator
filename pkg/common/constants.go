@@ -23,4 +23,6 @@ const (
 
 	RESOURCE_POLICY_ANNOTATION = "cpln.io/resource-policy"
 	RESOURCE_POLICY_KEEP       = "keep"
+
+	SPECIAL_SECRET_DATA_KEY = "value"
 )
