@@ -269,6 +269,10 @@ spec:
                     type: boolean
                   debug:
                     type: boolean
+                  location:
+                    type: string
+                  multiZone:
+                    type: boolean
                   spot:
                     type: boolean
                   suspend:
@@ -412,6 +416,10 @@ spec:
                     capacityAI:
                       type: boolean
                     debug:
+                      type: boolean
+                    location:
+                      type: string
+                    multiZone:
                       type: boolean
                     spot:
                       type: boolean

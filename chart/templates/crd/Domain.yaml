@@ -93,6 +93,8 @@ spec:
                             type: object
                           hostPrefix:
                             type: string
+                          hostRegex:
+                            type: string
                           port:
                             type: number
                           prefix:
@@ -101,6 +103,8 @@ spec:
                             type: string
                           replacePrefix:
                             type: string
+                          replica:
+                            type: number
                           workloadLink:
                             type: string
                         type: object

@@ -99,6 +99,8 @@ spec:
                 type: object
               phase:
                 type: string
+              warning:
+                type: string
             type: object
           tags:
             additionalProperties:

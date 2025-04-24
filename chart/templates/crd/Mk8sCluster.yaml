@@ -78,10 +78,18 @@ spec:
                     properties:
                       auditEnabled:
                         type: boolean
+                      docker:
+                        type: boolean
+                      events:
+                        type: boolean
                       excludeNamespaces:
                         type: string
                       includeNamespaces:
                         type: string
+                      kernel:
+                        type: boolean
+                      kubelet:
+                        type: boolean
                     type: object
                   metrics:
                     properties:
@@ -348,6 +356,10 @@ spec:
                         type: string
                       sdkSecretLink:
                         type: string
+                      sshKeys:
+                        items:
+                          type: string
+                        type: array
                       subscriptionId:
                         type: string
                       tags:

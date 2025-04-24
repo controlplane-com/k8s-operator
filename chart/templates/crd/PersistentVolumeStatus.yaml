@@ -95,6 +95,8 @@ spec:
                   type: array
               type: object
             type: array
+          zone:
+            type: string
         required:
         - org
         type: object

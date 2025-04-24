@@ -154,6 +154,8 @@ spec:
                                   type: array
                               type: object
                             type: array
+                          zone:
+                            type: string
                         type: object
                       type: array
                   type: object
