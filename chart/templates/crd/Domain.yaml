@@ -65,6 +65,8 @@ spec:
                             properties:
                               exact:
                                 type: string
+                              regex:
+                                type: string
                             type: object
                           type: array
                         exposeHeaders:

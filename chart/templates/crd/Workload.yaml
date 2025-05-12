@@ -297,6 +297,24 @@ spec:
                 properties:
                   external:
                     properties:
+                      http:
+                        properties:
+                          inboundHeaderFilter:
+                            items:
+                              properties:
+                                allowedValues:
+                                  items:
+                                    type: string
+                                  type: array
+                                blockedValues:
+                                  items:
+                                    type: string
+                                  type: array
+                                key:
+                                  type: string
+                              type: object
+                            type: array
+                        type: object
                       inboundAllowCIDR:
                         items:
                           type: string
