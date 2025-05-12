@@ -41,6 +41,8 @@ spec:
             properties:
               acceptAllHosts:
                 type: boolean
+              certChallengeType:
+                type: string
               dnsMode:
                 type: string
               gvcLink:
@@ -132,6 +134,8 @@ spec:
                       type: object
                   type: object
                 type: array
+              workloadLink:
+                type: string
             type: object
           status:
             properties:

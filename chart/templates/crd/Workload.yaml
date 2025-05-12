@@ -272,7 +272,10 @@ spec:
                   location:
                     type: string
                   multiZone:
-                    type: boolean
+                    properties:
+                      enabled:
+                        type: boolean
+                    type: object
                   spot:
                     type: boolean
                   suspend:
@@ -408,6 +411,8 @@ spec:
                             type: string
                         type: object
                     type: object
+                  replicaDirect:
+                    type: boolean
                 type: object
               localOptions:
                 items:
@@ -438,7 +443,10 @@ spec:
                     location:
                       type: string
                     multiZone:
-                      type: boolean
+                      properties:
+                        enabled:
+                          type: boolean
+                      type: object
                     spot:
                       type: boolean
                     suspend:
