@@ -45,11 +45,6 @@ push-image:
     	--platform="${PLATFORM}" \
     	 -t ${IMG} .
 
-.PHONY: update-index
-package-chart:
-	helm package chart --destination published-charts --version $(VERSION)
-	helm repo index . --url https://controlplane-com.github.io/k8s-operator
-
 
 .PHONY: install-secret
 install-secret:
