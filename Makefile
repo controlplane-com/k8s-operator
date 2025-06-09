@@ -63,3 +63,13 @@ install-secret:
 .PHONY: cluster-quickstart
 cluster-quickstart:
 	bash scripts/cluster-quickstart.sh;
+
+#Before making this recipe, update Chart.yaml with the new version and, if necessary, change the operator image referenced in values.yaml to the correct tag.
+#Typically this is run this only in the gh-pages branch
+.PHONY: publish-chart
+publish-chart:
+	helm package chart/ --destination published-charts
+	helm repo index published-charts \
+      --merge index.yaml \
+      --url https://controlplane-com.github.io/k8s-operator/published-charts
+	mv published-charts/index.yaml
