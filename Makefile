@@ -67,4 +67,4 @@ publish-chart:
 	helm repo index published-charts \
       --merge index.yaml \
       --url https://controlplane-com.github.io/k8s-operator/published-charts
-	mv published-charts/index.yaml
+	mv published-charts/index.yaml index.yaml
