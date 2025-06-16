@@ -4,7 +4,27 @@ entries:
   - annotations:
       category: Helm Chart
     apiVersion: v2
-    created: "2025-06-09T10:12:06.427778763-04:00"
+    created: "2025-06-16T14:59:28.904275992-04:00"
+    description: A Helm chart for the Control Plane Kubernetes Operator
+    digest: db5d00b6a7efc17cc77282cfa6d966781ff95f500082a74a1a39ed60a965a71a
+    keywords:
+    - go
+    - Control Plane
+    - helm
+    maintainers:
+    - email: kyle@controlplane.com
+      name: Kyle Cupp
+    name: cpln-operator
+    sources:
+    - https://github.com/controlplane-com/k8s-operator
+    type: application
+    urls:
+    - https://controlplane-com.github.io/k8s-operator/published-charts/cpln-operator-0.4.1.tgz
+    version: 0.4.1
+  - annotations:
+      category: Helm Chart
+    apiVersion: v2
+    created: "2025-06-16T14:59:28.903587821-04:00"
     description: A Helm chart for the Control Plane Kubernetes Operator
     digest: 6cf24b1f133bc615017fd2258ccfcf587dc6db8e12f11c988fd04464234010ae
     keywords:
@@ -24,7 +44,7 @@ entries:
   - annotations:
       category: Helm Chart
     apiVersion: v2
-    created: "2025-06-09T10:12:06.426849766-04:00"
+    created: "2025-06-16T14:59:28.902245579-04:00"
     description: A Helm chart for the Control Plane Kubernetes Operator
     digest: ec5f835515de673e8d0b14f801e6fbe03caf67729c88f35a19af24ae8132862e
     keywords:
@@ -44,7 +64,7 @@ entries:
   - annotations:
       category: Helm Chart
     apiVersion: v2
-    created: "2025-03-13T12:31:07.669126946-04:00"
+    created: "2025-06-16T14:59:28.901659799-04:00"
     description: A Helm chart for the Control Plane Kubernetes Operator
     digest: d909cf13795f8b96a07b1a9f55a95a8db28f1644ab9c3896457c7c633547cf41
     keywords:
@@ -64,7 +84,7 @@ entries:
   - annotations:
       category: Helm Chart
     apiVersion: v2
-    created: "2025-03-13T12:31:07.668555789-04:00"
+    created: "2025-06-16T14:59:28.901116697-04:00"
     description: A Helm chart for the Control Plane Kubernetes Operator
     digest: 4b0657b93f8e5b5e71c3afbac73cf0e534dc95ac81e5a8091ddc5eeb44d71d26
     keywords:
@@ -84,7 +104,7 @@ entries:
   - annotations:
       category: Helm Chart
     apiVersion: v2
-    created: "2025-03-13T12:31:07.667975412-04:00"
+    created: "2025-06-16T14:59:28.900494704-04:00"
     description: A Helm chart for the Control Plane Kubernetes Operator
     digest: 7b58019def4b208ad1f413287d19ba877aeef955b4edef820d7eb39e4d94690b
     keywords:
@@ -104,7 +124,7 @@ entries:
   - annotations:
       category: Helm Chart
     apiVersion: v2
-    created: "2025-03-13T12:31:07.667276375-04:00"
+    created: "2025-06-16T14:59:28.899519964-04:00"
     description: A Helm chart for the Control Plane Kubernetes Operator
     digest: 2ac38e190746081c7c9ddc9b319f937d41fe5ffde58217e9d8e579362fceb1e3
     keywords:
@@ -124,7 +144,7 @@ entries:
   - annotations:
       category: Helm Chart
     apiVersion: v2
-    created: "2025-03-13T12:31:07.665986499-04:00"
+    created: "2025-06-16T14:59:28.898866357-04:00"
     description: A Helm chart for the Control Plane Kubernetes Operator
     digest: 62f84f4bce0582bde8fbe16d0fd19c4353596969c9d7d4bff79747ef26801a0f
     keywords:
@@ -144,7 +164,7 @@ entries:
   - annotations:
       category: Helm Chart
     apiVersion: v2
-    created: "2025-03-13T12:31:07.665198891-04:00"
+    created: "2025-06-16T14:59:28.89806883-04:00"
     description: A Helm chart for the Control Plane Kubernetes Operator
     digest: b0b99811fc37252642ddb58004fad435d2bc739226198a7aa70e6e7e60feac35
     keywords:
@@ -164,7 +184,7 @@ entries:
   - annotations:
       category: Helm Chart
     apiVersion: v2
-    created: "2025-03-13T12:31:07.664572708-04:00"
+    created: "2025-06-16T14:59:28.896869375-04:00"
     description: A Helm chart for the Control Plane Kubernetes Operator
     digest: 46dd833ab5612143da377909aa15f146e71f379f1787fffb94d5fd527f78b60a
     keywords:
@@ -181,4 +201,4 @@ entries:
     urls:
     - https://controlplane-com.github.io/k8s-operator/published-charts/cpln-operator-0.1.0.tgz
     version: 0.1.0
-generated: "2025-06-09T10:12:06.421116776-04:00"
+generated: "2025-06-16T14:59:28.896077167-04:00"
