@@ -1,5 +1,5 @@
-VERSION ?= 0.3.0
-IMG ?= gcr.io/cpln-build/cpln-operator:v${VERSION}
+VERSION ?= 0.4.0
+IMG ?= us-docker.pkg.dev/controlplane/internal/cpln-operator:v${VERSION}
 PLATFORM ?= linux/arm64,linux/amd64
 .PHONY: generate-rbac
 generate-rbac:
