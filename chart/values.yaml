@@ -1,4 +1,4 @@
-image: us-docker.pkg.dev/controlplane/internal/cpln-operator:v0.4.0
+image: ghcr.io/controlplane-com/cpln-build/cpln-operator:v0.4.0
 env:
   CPLN_API_URL: https://api.cpln.io
   CPLN_WORKLOAD_STATUS_URL: wss://workload-status.cpln.io/register

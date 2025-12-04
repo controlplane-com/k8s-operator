@@ -50,6 +50,16 @@ spec:
                   scalingFactor:
                     type: number
                 type: object
+              customEncryption:
+                properties:
+                  regions:
+                    additionalProperties:
+                      properties:
+                        keyId:
+                          type: string
+                      type: object
+                    type: object
+                type: object
               fileSystemType:
                 type: string
               initialCapacity:

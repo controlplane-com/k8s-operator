@@ -70,7 +70,193 @@ spec:
                       tenantId:
                         type: string
                     type: object
+                  byok:
+                    properties:
+                      config:
+                        properties:
+                          actuator:
+                            properties:
+                              env:
+                                additionalProperties:
+                                  type: string
+                                type: object
+                              logLevel:
+                                type: string
+                              maxCpu:
+                                type: string
+                              maxMemory:
+                                type: string
+                              minCpu:
+                                type: string
+                              minMemory:
+                                type: string
+                            type: object
+                          common:
+                            properties:
+                              deploymentReplicas:
+                                type: number
+                              pdb:
+                                properties:
+                                  maxUnavailable:
+                                    type: number
+                                type: object
+                            type: object
+                          ingress:
+                            properties:
+                              cpu:
+                                type: string
+                              memory:
+                                type: string
+                              targetPercent:
+                                type: number
+                            type: object
+                          internalDns:
+                            properties:
+                              maxCpu:
+                                type: string
+                              maxMemory:
+                                type: string
+                              minCpu:
+                                type: string
+                              minMemory:
+                                type: string
+                            type: object
+                          istio:
+                            properties:
+                              ingressgateway:
+                                properties:
+                                  maxCpu:
+                                    type: string
+                                  maxMemory:
+                                    type: string
+                                  replicas:
+                                    type: number
+                                type: object
+                              istiod:
+                                properties:
+                                  maxCpu:
+                                    type: string
+                                  maxMemory:
+                                    type: string
+                                  minCpu:
+                                    type: string
+                                  minMemory:
+                                    type: string
+                                  pdb:
+                                    type: number
+                                  replicas:
+                                    type: number
+                                type: object
+                              sidecar:
+                                properties:
+                                  minCpu:
+                                    type: string
+                                  minMemory:
+                                    type: string
+                                type: object
+                            type: object
+                          logSplitter:
+                            properties:
+                              maxCpu:
+                                type: string
+                              maxMemory:
+                                type: string
+                              memBufferSize:
+                                type: string
+                              minCpu:
+                                type: string
+                              minMemory:
+                                type: string
+                              perPodRate:
+                                type: number
+                            type: object
+                          longhorn:
+                            properties:
+                              replicas:
+                                type: number
+                            type: object
+                          middlebox:
+                            properties:
+                              bandwidthAlertMbps:
+                                type: number
+                              enabled:
+                                type: boolean
+                            type: object
+                          monitoring:
+                            properties:
+                              kubeStateMetrics:
+                                properties:
+                                  minMemory:
+                                    type: string
+                                type: object
+                              maxMemory:
+                                type: string
+                              minMemory:
+                                type: string
+                              prometheus:
+                                properties:
+                                  main:
+                                    properties:
+                                      storage:
+                                        type: string
+                                    type: object
+                                type: object
+                            type: object
+                          redis:
+                            properties:
+                              maxCpu:
+                                type: string
+                              maxMemory:
+                                type: string
+                              minCpu:
+                                type: string
+                              minMemory:
+                                type: string
+                              storage:
+                                type: string
+                            type: object
+                          redisHa:
+                            properties:
+                              maxCpu:
+                                type: string
+                              maxMemory:
+                                type: string
+                              minCpu:
+                                type: string
+                              minMemory:
+                                type: string
+                              storage:
+                                type: number
+                            type: object
+                          redisSentinel:
+                            properties:
+                              maxCpu:
+                                type: string
+                              maxMemory:
+                                type: string
+                              minCpu:
+                                type: string
+                              minMemory:
+                                type: string
+                              storage:
+                                type: number
+                            type: object
+                          tempoAgent:
+                            properties:
+                              minCpu:
+                                type: string
+                              minMemory:
+                                type: string
+                            type: object
+                        type: object
+                      ignoreUpdates:
+                        type: boolean
+                      location:
+                        type: string
+                    type: object
                   dashboard:
+                    type: object
+                  headlamp:
                     type: object
                   localPathStorage:
                     type: object
@@ -121,6 +307,20 @@ spec:
                     properties:
                       taintGPUNodes:
                         type: boolean
+                    type: object
+                  registryMirror:
+                    properties:
+                      mirrors:
+                        items:
+                          properties:
+                            mirrors:
+                              items:
+                                type: string
+                              type: array
+                            registry:
+                              type: string
+                          type: object
+                        type: array
                     type: object
                   sysbox:
                     type: object
@@ -487,6 +687,121 @@ spec:
                                 type: object
                               type: array
                           type: object
+                        type: array
+                    type: object
+                  gcp:
+                    properties:
+                      autoscaler:
+                        properties:
+                          expander:
+                            items:
+                              type: string
+                            type: array
+                          unneededTime:
+                            type: string
+                          unreadyTime:
+                            type: string
+                          utilizationThreshold:
+                            type: number
+                        type: object
+                      image:
+                        properties:
+                          exact:
+                            type: string
+                          family:
+                            properties:
+                              family:
+                                type: string
+                              project:
+                                type: string
+                            type: object
+                          recommended:
+                            type: string
+                        type: object
+                      labels:
+                        additionalProperties:
+                          type: string
+                        type: object
+                      metadata:
+                        additionalProperties:
+                          type: string
+                        type: object
+                      network:
+                        type: string
+                      networking:
+                        properties:
+                          dnsForwarder:
+                            type: string
+                          podNetwork:
+                            type: string
+                          serviceNetwork:
+                            type: string
+                        type: object
+                      nodePools:
+                        items:
+                          properties:
+                            assignPublicIP:
+                              type: boolean
+                            bootDiskSize:
+                              type: number
+                            labels:
+                              additionalProperties:
+                                type: string
+                              type: object
+                            localPersistentDisks:
+                              type: number
+                            machineType:
+                              type: string
+                            maxSize:
+                              type: number
+                            minSize:
+                              type: number
+                            name:
+                              type: string
+                            overrideImage:
+                              properties:
+                                exact:
+                                  type: string
+                                family:
+                                  properties:
+                                    family:
+                                      type: string
+                                    project:
+                                      type: string
+                                  type: object
+                                recommended:
+                                  type: string
+                              type: object
+                            preemptible:
+                              type: boolean
+                            subnet:
+                              type: string
+                            taints:
+                              items:
+                                properties:
+                                  effect:
+                                    type: string
+                                  key:
+                                    type: string
+                                  value:
+                                    type: string
+                                type: object
+                              type: array
+                            zone:
+                              type: string
+                          type: object
+                        type: array
+                      preInstallScript:
+                        type: string
+                      projectId:
+                        type: string
+                      region:
+                        type: string
+                      saKeyLink:
+                        type: string
+                      tags:
+                        items:
+                          type: string
                         type: array
                     type: object
                   generic:
@@ -985,6 +1300,13 @@ spec:
                                 type: number
                               imageId:
                                 type: string
+                              logging:
+                                properties:
+                                  externalSyslog:
+                                    type: string
+                                  nodePort:
+                                    type: number
+                                type: object
                               metadata:
                                 additionalProperties:
                                   type: string
@@ -1001,6 +1323,8 @@ spec:
                                 additionalProperties:
                                   type: string
                                 type: object
+                            type: object
+                          none:
                             type: object
                         type: object
                       location:
@@ -1107,6 +1431,11 @@ spec:
                         type: object
                     type: object
                   dashboard:
+                    properties:
+                      url:
+                        type: string
+                    type: object
+                  headlamp:
                     properties:
                       url:
                         type: string

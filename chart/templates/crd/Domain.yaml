@@ -41,6 +41,8 @@ spec:
             properties:
               acceptAllHosts:
                 type: boolean
+              acceptAllSubdomains:
+                type: boolean
               certChallengeType:
                 type: string
               dnsMode:

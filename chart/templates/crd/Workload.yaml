@@ -159,6 +159,10 @@ spec:
                       type: string
                     metrics:
                       properties:
+                        dropMetrics:
+                          items:
+                            type: string
+                          type: array
                         path:
                           type: string
                         port:
@@ -1295,6 +1299,10 @@ spec:
                 type: string
               phase:
                 type: string
+              replicaInternalNames:
+                items:
+                  type: string
+                type: array
               resolvedImages:
                 properties:
                   errorMessages:
@@ -1323,6 +1331,8 @@ spec:
                           type: array
                       type: object
                     type: array
+                  nextRetryAt:
+                    type: string
                   resolvedAt:
                     type: string
                   resolvedForVersion:
