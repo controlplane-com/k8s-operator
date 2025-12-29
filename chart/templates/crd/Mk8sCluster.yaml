@@ -91,6 +91,11 @@ spec:
                               minMemory:
                                 type: string
                             type: object
+                          byok:
+                            properties:
+                              noDefaultStorageClasses:
+                                type: boolean
+                            type: object
                           common:
                             properties:
                               deploymentReplicas:
