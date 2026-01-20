@@ -57,6 +57,13 @@ spec:
                 properties:
                   match:
                     type: string
+                  sort:
+                    properties:
+                      by:
+                        type: string
+                      order:
+                        type: string
+                    type: object
                   terms:
                     items:
                       properties:

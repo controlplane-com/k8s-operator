@@ -50,8 +50,6 @@ spec:
             type: object
           created:
             type: string
-          desiredScale:
-            type: number
           gvc:
             type: number
           message:

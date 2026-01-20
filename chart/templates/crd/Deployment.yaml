@@ -44,8 +44,6 @@ spec:
                 type: array
               deploying:
                 type: boolean
-              desiredScale:
-                type: number
               endpoint:
                 type: string
               expectedDeploymentVersion:
@@ -189,8 +187,6 @@ spec:
                       type: object
                     created:
                       type: string
-                    desiredScale:
-                      type: number
                     gvc:
                       type: number
                     message:

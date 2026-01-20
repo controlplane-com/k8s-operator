@@ -177,7 +177,9 @@ spec:
                             type: object
                           longhorn:
                             properties:
-                              replicas:
+                              isDefault:
+                                type: boolean
+                              numberOfReplicas:
                                 type: number
                             type: object
                           middlebox:
@@ -186,6 +188,10 @@ spec:
                                 type: number
                               enabled:
                                 type: boolean
+                              ip:
+                                type: string
+                              port:
+                                type: number
                             type: object
                           monitoring:
                             properties:
@@ -262,6 +268,30 @@ spec:
                   dashboard:
                     type: object
                   headlamp:
+                    type: object
+                  juiceFS:
+                    properties:
+                      bucket:
+                        type: string
+                      redis:
+                        properties:
+                          maxCpu:
+                            type: string
+                          maxMemory:
+                            type: string
+                          minCpu:
+                            type: string
+                          minMemory:
+                            type: string
+                          replicas:
+                            type: number
+                          storage:
+                            type: string
+                        type: object
+                      storageSecretLink:
+                        type: string
+                      storageType:
+                        type: string
                     type: object
                   localPathStorage:
                     type: object

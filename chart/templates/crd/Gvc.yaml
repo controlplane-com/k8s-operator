@@ -43,6 +43,8 @@ spec:
             properties:
               domain:
                 type: string
+              endpointNamingFormat:
+                type: string
               env:
                 items:
                   properties:
@@ -52,15 +54,797 @@ spec:
                       type: string
                   type: object
                 type: array
+              keda:
+                properties:
+                  enabled:
+                    type: boolean
+                  identityLink:
+                    type: string
+                  secrets:
+                    items:
+                      type: string
+                    type: array
+                type: object
               loadBalancer:
                 properties:
                   dedicated:
                     type: boolean
+                  ipSet:
+                    type: string
+                  multiZone:
+                    properties:
+                      enabled:
+                        type: boolean
+                    type: object
+                  redirect:
+                    properties:
+                      class:
+                        properties:
+                          status5xx:
+                            type: string
+                          status401:
+                            type: string
+                        type: object
+                    type: object
+                  trustedProxies:
+                    type: number
                 type: object
               pullSecretLinks:
                 items:
                   type: string
                 type: array
+              sidecar:
+                properties:
+                  envoy:
+                    properties:
+                      accessLog:
+                        items:
+                          properties:
+                            excludedWorkloads:
+                              items:
+                                type: string
+                              type: array
+                            name:
+                              type: string
+                            priority:
+                              type: number
+                            typed_config:
+                              properties:
+                                '@type':
+                                  type: string
+                                additional_request_headers_to_log:
+                                  items:
+                                    type: string
+                                  type: array
+                                additional_response_headers_to_log:
+                                  items:
+                                    type: string
+                                  type: array
+                                additional_response_trailers_to_log:
+                                  items:
+                                    type: string
+                                  type: array
+                                common_config:
+                                  properties:
+                                    buffer_flush_interval:
+                                      type: string
+                                    buffer_size_bytes:
+                                      type: number
+                                    filter_state_objects_to_log:
+                                      items:
+                                        type: string
+                                      type: array
+                                    grpc_service:
+                                      properties:
+                                        envoy_grpc:
+                                          properties:
+                                            authority:
+                                              type: string
+                                            cluster_name:
+                                              type: string
+                                            retry_policy:
+                                              properties:
+                                                num_retries:
+                                                  type: number
+                                                retry_back_off:
+                                                  properties:
+                                                    base_interval:
+                                                      type: string
+                                                    max_interval:
+                                                      type: string
+                                                  type: object
+                                              type: object
+                                          type: object
+                                        google_grpc:
+                                          properties:
+                                            call_credentials:
+                                              items:
+                                                properties:
+                                                  access_token:
+                                                    type: string
+                                                  from_plugin:
+                                                    properties:
+                                                      name:
+                                                        type: string
+                                                      typed_config:
+                                                        type: string
+                                                    type: object
+                                                  google_compute_engine:
+                                                    type: object
+                                                  google_iam:
+                                                    properties:
+                                                      authority_selector:
+                                                        type: string
+                                                      authorization_token:
+                                                        type: string
+                                                    type: object
+                                                  google_refresh_token:
+                                                    type: string
+                                                  service_account_jwt_access:
+                                                    properties:
+                                                      json_key:
+                                                        type: string
+                                                      token_lifetime_seconds:
+                                                        type: number
+                                                    type: object
+                                                  sts_service:
+                                                    properties:
+                                                      actor_token_path:
+                                                        type: string
+                                                      actor_token_type:
+                                                        type: string
+                                                      audience:
+                                                        type: string
+                                                      requested_token_type:
+                                                        type: string
+                                                      resource:
+                                                        type: string
+                                                      scope:
+                                                        type: string
+                                                      subject_token_path:
+                                                        type: string
+                                                      subject_token_type:
+                                                        type: string
+                                                      token_exchange_service_uri:
+                                                        type: string
+                                                    type: object
+                                                type: object
+                                              type: array
+                                            channel_credentials:
+                                              properties:
+                                                google_default:
+                                                  type: object
+                                                ssl_credentials:
+                                                  properties:
+                                                    cert_chain:
+                                                      properties:
+                                                        environment_variable:
+                                                          type: string
+                                                        filename:
+                                                          type: string
+                                                        inline_bytes:
+                                                          type: string
+                                                        inline_string:
+                                                          type: string
+                                                      type: object
+                                                    private_key:
+                                                      properties:
+                                                        environment_variable:
+                                                          type: string
+                                                        filename:
+                                                          type: string
+                                                        inline_bytes:
+                                                          type: string
+                                                        inline_string:
+                                                          type: string
+                                                      type: object
+                                                    root_certs:
+                                                      properties:
+                                                        environment_variable:
+                                                          type: string
+                                                        filename:
+                                                          type: string
+                                                        inline_bytes:
+                                                          type: string
+                                                        inline_string:
+                                                          type: string
+                                                      type: object
+                                                  type: object
+                                              type: object
+                                            config:
+                                              additionalProperties:
+                                                type: string
+                                              type: object
+                                            credentials_factory_name:
+                                              type: string
+                                            stat_prefix:
+                                              type: string
+                                            target_uri:
+                                              type: string
+                                          type: object
+                                        initial_metadata:
+                                          items:
+                                            properties:
+                                              key:
+                                                type: string
+                                              raw_value:
+                                                type: string
+                                              value:
+                                                type: string
+                                            type: object
+                                          type: array
+                                        timeout:
+                                          type: string
+                                      type: object
+                                    grpc_stream_retry_policy:
+                                      properties:
+                                        num_retries:
+                                          type: number
+                                        retry_back_off:
+                                          properties:
+                                            base_interval:
+                                              type: string
+                                            max_interval:
+                                              type: string
+                                          type: object
+                                      type: object
+                                    log_name:
+                                      type: string
+                                    transport_api_version:
+                                      type: string
+                                  type: object
+                              type: object
+                          type: object
+                        type: array
+                      clusters:
+                        items:
+                          properties:
+                            alt_stat_name:
+                              type: string
+                            circuit_breakers:
+                              type: string
+                            cleanup_interval:
+                              type: string
+                            close_connections_on_host_health_failure:
+                              type: string
+                            cluster_type:
+                              type: string
+                            common_http_protocol_options:
+                              type: string
+                            common_lb_config:
+                              type: string
+                            connect_timeout:
+                              type: string
+                            connection_pool_per_downstream_connection:
+                              type: string
+                            dns_failure_refresh_rate:
+                              type: string
+                            dns_lookup_family:
+                              type: string
+                            dns_refresh_rate:
+                              type: string
+                            dns_resolution_config:
+                              type: string
+                            dns_resolvers:
+                              type: string
+                            eds_cluster_config:
+                              type: string
+                            excludedWorkloads:
+                              items:
+                                type: string
+                              type: array
+                            filters:
+                              type: string
+                            health_checks:
+                              type: string
+                            http_protocol_options:
+                              type: string
+                            http2_protocol_options:
+                              type: string
+                            ignore_health_on_host_removal:
+                              type: string
+                            lb_policy:
+                              type: string
+                            lb_subset_config:
+                              type: string
+                            least_request_lb_config:
+                              type: string
+                            load_assignment:
+                              properties:
+                                cluster_name:
+                                  type: string
+                                endpoints:
+                                  type: string
+                                policy:
+                                  type: string
+                              type: object
+                            load_balancing_policy:
+                              type: string
+                            maglev_lb_config:
+                              type: string
+                            max_requests_per_connection:
+                              type: string
+                            metadata:
+                              type: string
+                            name:
+                              type: string
+                            outlier_detection:
+                              type: string
+                            per_connection_buffer_limit_bytes:
+                              type: string
+                            preconnect_policy:
+                              type: string
+                            protocol_selection:
+                              type: string
+                            respect_dns_ttl:
+                              type: string
+                            ring_hash_lb_config:
+                              type: string
+                            track_cluster_stats:
+                              type: string
+                            track_timeout_budgets:
+                              type: string
+                            transport_socket:
+                              type: string
+                            transport_socket_matches:
+                              type: string
+                            type:
+                              type: string
+                            typed_dns_resolver_config:
+                              type: string
+                            typed_extension_protocol_options:
+                              type: string
+                            upstream_bind_config:
+                              type: string
+                            upstream_config:
+                              type: string
+                            upstream_connection_options:
+                              type: string
+                            upstream_http_protocol_options:
+                              type: string
+                            use_tcp_for_dns_lookups:
+                              type: string
+                            wait_for_warm_on_init:
+                              type: string
+                          type: object
+                        type: array
+                      excludedExternalAuth:
+                        items:
+                          properties:
+                            match:
+                              properties:
+                                case_sensitive:
+                                  type: boolean
+                                dynamic_metadata:
+                                  items:
+                                    properties:
+                                      filter:
+                                        type: string
+                                      invert:
+                                        type: boolean
+                                      path:
+                                        items:
+                                          properties:
+                                            key:
+                                              type: string
+                                          type: object
+                                        type: array
+                                      value:
+                                        properties:
+                                          bool_match:
+                                            type: boolean
+                                          double_match:
+                                            properties:
+                                              exact:
+                                                type: number
+                                              range:
+                                                properties:
+                                                  end:
+                                                    type: number
+                                                  start:
+                                                    type: number
+                                                type: object
+                                            type: object
+                                          null_match:
+                                            type: string
+                                          present_match:
+                                            type: boolean
+                                          string_match:
+                                            properties:
+                                              contains:
+                                                type: string
+                                              exact:
+                                                type: string
+                                              ignore_case:
+                                                type: boolean
+                                              prefix:
+                                                type: string
+                                              safe_regex:
+                                                properties:
+                                                  google_re2:
+                                                    properties:
+                                                      max_program_size:
+                                                        type: number
+                                                    type: object
+                                                  regex:
+                                                    type: string
+                                                type: object
+                                              suffix:
+                                                type: string
+                                            type: object
+                                        type: object
+                                    type: object
+                                  type: array
+                                grpc:
+                                  properties:
+                                    presented:
+                                      type: boolean
+                                    validated:
+                                      type: boolean
+                                  type: object
+                                headers:
+                                  items:
+                                    properties:
+                                      invert_match:
+                                        type: boolean
+                                      name:
+                                        type: string
+                                      present_match:
+                                        type: boolean
+                                      range_match:
+                                        properties:
+                                          end:
+                                            type: number
+                                          start:
+                                            type: number
+                                        type: object
+                                      safe_regex_match:
+                                        properties:
+                                          google_re2:
+                                            properties:
+                                              max_program_size:
+                                                type: number
+                                            type: object
+                                          regex:
+                                            type: string
+                                        type: object
+                                      string_match:
+                                        properties:
+                                          contains:
+                                            type: string
+                                          exact:
+                                            type: string
+                                          ignore_case:
+                                            type: boolean
+                                          prefix:
+                                            type: string
+                                          safe_regex:
+                                            properties:
+                                              google_re2:
+                                                properties:
+                                                  max_program_size:
+                                                    type: number
+                                                type: object
+                                              regex:
+                                                type: string
+                                            type: object
+                                          suffix:
+                                            type: string
+                                        type: object
+                                      treat_missing_header_as_empty:
+                                        type: boolean
+                                    type: object
+                                  type: array
+                                path:
+                                  type: string
+                                path_match_policy:
+                                  properties:
+                                    name:
+                                      type: string
+                                    typed_config:
+                                      type: string
+                                  type: object
+                                path_separated_prefix:
+                                  type: string
+                                prefix:
+                                  type: string
+                                query_parameters:
+                                  items:
+                                    properties:
+                                      name:
+                                        type: string
+                                      present_match:
+                                        type: boolean
+                                      string_match:
+                                        properties:
+                                          contains:
+                                            type: string
+                                          exact:
+                                            type: string
+                                          ignore_case:
+                                            type: boolean
+                                          prefix:
+                                            type: string
+                                          safe_regex:
+                                            properties:
+                                              google_re2:
+                                                properties:
+                                                  max_program_size:
+                                                    type: number
+                                                type: object
+                                              regex:
+                                                type: string
+                                            type: object
+                                          suffix:
+                                            type: string
+                                        type: object
+                                    type: object
+                                  type: array
+                                runtime_fraction:
+                                  properties:
+                                    default_value:
+                                      properties:
+                                        denominator:
+                                          type: number
+                                        numerator:
+                                          type: number
+                                      type: object
+                                    runtime_key:
+                                      type: string
+                                  type: object
+                                safe_regex:
+                                  properties:
+                                    google_re2:
+                                      properties:
+                                        max_program_size:
+                                          type: number
+                                      type: object
+                                    regex:
+                                      type: string
+                                  type: object
+                                tls_context:
+                                  properties:
+                                    presented:
+                                      type: boolean
+                                    validated:
+                                      type: boolean
+                                  type: object
+                              type: object
+                            port:
+                              type: number
+                            svcPort:
+                              type: number
+                          type: object
+                        type: array
+                      excludedRateLimit:
+                        items:
+                          properties:
+                            match:
+                              properties:
+                                case_sensitive:
+                                  type: boolean
+                                dynamic_metadata:
+                                  items:
+                                    properties:
+                                      filter:
+                                        type: string
+                                      invert:
+                                        type: boolean
+                                      path:
+                                        items:
+                                          properties:
+                                            key:
+                                              type: string
+                                          type: object
+                                        type: array
+                                      value:
+                                        properties:
+                                          bool_match:
+                                            type: boolean
+                                          double_match:
+                                            properties:
+                                              exact:
+                                                type: number
+                                              range:
+                                                properties:
+                                                  end:
+                                                    type: number
+                                                  start:
+                                                    type: number
+                                                type: object
+                                            type: object
+                                          null_match:
+                                            type: string
+                                          present_match:
+                                            type: boolean
+                                          string_match:
+                                            properties:
+                                              contains:
+                                                type: string
+                                              exact:
+                                                type: string
+                                              ignore_case:
+                                                type: boolean
+                                              prefix:
+                                                type: string
+                                              safe_regex:
+                                                properties:
+                                                  google_re2:
+                                                    properties:
+                                                      max_program_size:
+                                                        type: number
+                                                    type: object
+                                                  regex:
+                                                    type: string
+                                                type: object
+                                              suffix:
+                                                type: string
+                                            type: object
+                                        type: object
+                                    type: object
+                                  type: array
+                                grpc:
+                                  properties:
+                                    presented:
+                                      type: boolean
+                                    validated:
+                                      type: boolean
+                                  type: object
+                                headers:
+                                  items:
+                                    properties:
+                                      invert_match:
+                                        type: boolean
+                                      name:
+                                        type: string
+                                      present_match:
+                                        type: boolean
+                                      range_match:
+                                        properties:
+                                          end:
+                                            type: number
+                                          start:
+                                            type: number
+                                        type: object
+                                      safe_regex_match:
+                                        properties:
+                                          google_re2:
+                                            properties:
+                                              max_program_size:
+                                                type: number
+                                            type: object
+                                          regex:
+                                            type: string
+                                        type: object
+                                      string_match:
+                                        properties:
+                                          contains:
+                                            type: string
+                                          exact:
+                                            type: string
+                                          ignore_case:
+                                            type: boolean
+                                          prefix:
+                                            type: string
+                                          safe_regex:
+                                            properties:
+                                              google_re2:
+                                                properties:
+                                                  max_program_size:
+                                                    type: number
+                                                type: object
+                                              regex:
+                                                type: string
+                                            type: object
+                                          suffix:
+                                            type: string
+                                        type: object
+                                      treat_missing_header_as_empty:
+                                        type: boolean
+                                    type: object
+                                  type: array
+                                path:
+                                  type: string
+                                path_match_policy:
+                                  properties:
+                                    name:
+                                      type: string
+                                    typed_config:
+                                      type: string
+                                  type: object
+                                path_separated_prefix:
+                                  type: string
+                                prefix:
+                                  type: string
+                                query_parameters:
+                                  items:
+                                    properties:
+                                      name:
+                                        type: string
+                                      present_match:
+                                        type: boolean
+                                      string_match:
+                                        properties:
+                                          contains:
+                                            type: string
+                                          exact:
+                                            type: string
+                                          ignore_case:
+                                            type: boolean
+                                          prefix:
+                                            type: string
+                                          safe_regex:
+                                            properties:
+                                              google_re2:
+                                                properties:
+                                                  max_program_size:
+                                                    type: number
+                                                type: object
+                                              regex:
+                                                type: string
+                                            type: object
+                                          suffix:
+                                            type: string
+                                        type: object
+                                    type: object
+                                  type: array
+                                runtime_fraction:
+                                  properties:
+                                    default_value:
+                                      properties:
+                                        denominator:
+                                          type: number
+                                        numerator:
+                                          type: number
+                                      type: object
+                                    runtime_key:
+                                      type: string
+                                  type: object
+                                safe_regex:
+                                  properties:
+                                    google_re2:
+                                      properties:
+                                        max_program_size:
+                                          type: number
+                                      type: object
+                                    regex:
+                                      type: string
+                                  type: object
+                                tls_context:
+                                  properties:
+                                    presented:
+                                      type: boolean
+                                    validated:
+                                      type: boolean
+                                  type: object
+                              type: object
+                            port:
+                              type: number
+                            svcPort:
+                              type: number
+                          type: object
+                        type: array
+                      http:
+                        items:
+                          type: string
+                        type: array
+                      network:
+                        items:
+                          type: string
+                        type: array
+                      volumes:
+                        items:
+                          properties:
+                            path:
+                              type: string
+                            recoveryPolicy:
+                              type: string
+                            uri:
+                              type: string
+                          type: object
+                        type: array
+                    type: object
+                type: object
               staticPlacement:
                 properties:
                   locationLinks:
@@ -81,6 +865,13 @@ spec:
                         properties:
                           match:
                             type: string
+                          sort:
+                            properties:
+                              by:
+                                type: string
+                              order:
+                                type: string
+                            type: object
                           terms:
                             items:
                               properties:
