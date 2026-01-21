@@ -181,6 +181,8 @@ spec:
                                 type: boolean
                               numberOfReplicas:
                                 type: number
+                              replicas:
+                                type: number
                             type: object
                           middlebox:
                             properties:
@@ -195,6 +197,10 @@ spec:
                             type: object
                           monitoring:
                             properties:
+                              externalLabels:
+                                additionalProperties:
+                                  type: string
+                                type: object
                               kubeStateMetrics:
                                 properties:
                                   minMemory:
@@ -212,6 +218,108 @@ spec:
                                         type: string
                                     type: object
                                 type: object
+                              remoteWrite:
+                                items:
+                                  properties:
+                                    authorization:
+                                      properties:
+                                        credentials:
+                                          type: string
+                                        credentials_file:
+                                          type: string
+                                        type:
+                                          type: string
+                                      type: object
+                                    azuread:
+                                      additionalProperties:
+                                        type: string
+                                      type: object
+                                    basic_auth:
+                                      properties:
+                                        password:
+                                          type: string
+                                        password_file:
+                                          type: string
+                                        username:
+                                          type: string
+                                        username_file:
+                                          type: string
+                                      type: object
+                                    enable_http2:
+                                      type: boolean
+                                    follow_redirects:
+                                      type: boolean
+                                    google_iam:
+                                      additionalProperties:
+                                        type: string
+                                      type: object
+                                    headers:
+                                      additionalProperties:
+                                        type: string
+                                      type: object
+                                    http_headers:
+                                      additionalProperties:
+                                        properties:
+                                          files:
+                                            items:
+                                              type: string
+                                            type: array
+                                          secrets:
+                                            items:
+                                              type: string
+                                            type: array
+                                          values:
+                                            items:
+                                              type: string
+                                            type: array
+                                        type: object
+                                      type: object
+                                    name:
+                                      type: string
+                                    no_proxy:
+                                      type: string
+                                    oauth2:
+                                      additionalProperties:
+                                        type: string
+                                      type: object
+                                    proxy_connect_header:
+                                      additionalProperties:
+                                        items:
+                                          type: string
+                                        type: array
+                                      type: object
+                                    proxy_from_environment:
+                                      type: boolean
+                                    proxy_url:
+                                      type: string
+                                    queue_config:
+                                      additionalProperties:
+                                        type: string
+                                      type: object
+                                    remote_timeout:
+                                      type: string
+                                    send_exemplars:
+                                      type: boolean
+                                    send_native_histograms:
+                                      type: boolean
+                                    sigv4:
+                                      additionalProperties:
+                                        type: string
+                                      type: object
+                                    tls_config:
+                                      additionalProperties:
+                                        type: string
+                                      type: object
+                                    url:
+                                      type: string
+                                    write_relabel_configs:
+                                      items:
+                                        additionalProperties:
+                                          type: string
+                                        type: object
+                                      type: array
+                                  type: object
+                                type: array
                             type: object
                           redis:
                             properties:
@@ -268,30 +376,6 @@ spec:
                   dashboard:
                     type: object
                   headlamp:
-                    type: object
-                  juiceFS:
-                    properties:
-                      bucket:
-                        type: string
-                      redis:
-                        properties:
-                          maxCpu:
-                            type: string
-                          maxMemory:
-                            type: string
-                          minCpu:
-                            type: string
-                          minMemory:
-                            type: string
-                          replicas:
-                            type: number
-                          storage:
-                            type: string
-                        type: object
-                      storageSecretLink:
-                        type: string
-                      storageType:
-                        type: string
                     type: object
                   localPathStorage:
                     type: object
