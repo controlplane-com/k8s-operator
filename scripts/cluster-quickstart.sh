@@ -17,4 +17,4 @@ echo "cert-manager webhook is ready."
 #cpln-operator
 helm repo add cpln https://controlplane-com.github.io/k8s-operator
 helm repo update cpln
-helm install cpln-operator cpln/cpln-operator
+helm install cpln-operator cpln/cpln-operator -n controlplane --create-namespace
