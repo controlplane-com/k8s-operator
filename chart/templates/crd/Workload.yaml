@@ -252,6 +252,60 @@ spec:
                 properties:
                   autoscaling:
                     properties:
+                      keda:
+                        properties:
+                          advanced:
+                            properties:
+                              scalingModifiers:
+                                properties:
+                                  activationTarget:
+                                    type: string
+                                  formula:
+                                    type: string
+                                  metricType:
+                                    type: string
+                                  target:
+                                    type: string
+                                type: object
+                            type: object
+                          cooldownPeriod:
+                            type: number
+                          fallback:
+                            properties:
+                              behavior:
+                                type: string
+                              failureThreshold:
+                                type: number
+                              replicas:
+                                type: number
+                            type: object
+                          initialCooldownPeriod:
+                            type: number
+                          pollingInterval:
+                            type: number
+                          triggers:
+                            items:
+                              properties:
+                                authenticationRef:
+                                  properties:
+                                    name:
+                                      type: string
+                                  type: object
+                                metadata:
+                                  additionalProperties:
+                                    type: string
+                                  type: object
+                                metricType:
+                                  type: string
+                                name:
+                                  type: string
+                                type:
+                                  type: string
+                                useCachedMetrics:
+                                  type: boolean
+                              type: object
+                            type: array
+                        type: object
                       maxConcurrency:
                         type: number
                       maxScale:
@@ -263,7 +317,14 @@ spec:
                       minScale:
                         type: number
                       multi:
-                        type: string
+                        items:
+                          properties:
+                            metric:
+                              type: string
+                            target:
+                              type: number
+                          type: object
+                        type: array
                       scaleToZeroDelay:
                         type: number
                       target:
@@ -271,10 +332,10 @@ spec:
                     type: object
                   capacityAI:
                     type: boolean
+                  capacityAIUpdateMinutes:
+                    type: number
                   debug:
                     type: boolean
-                  location:
-                    type: string
                   multiZone:
                     properties:
                       enabled:
@@ -423,6 +484,60 @@ spec:
                   properties:
                     autoscaling:
                       properties:
+                        keda:
+                          properties:
+                            advanced:
+                              properties:
+                                scalingModifiers:
+                                  properties:
+                                    activationTarget:
+                                      type: string
+                                    formula:
+                                      type: string
+                                    metricType:
+                                      type: string
+                                    target:
+                                      type: string
+                                  type: object
+                              type: object
+                            cooldownPeriod:
+                              type: number
+                            fallback:
+                              properties:
+                                behavior:
+                                  type: string
+                                failureThreshold:
+                                  type: number
+                                replicas:
+                                  type: number
+                              type: object
+                            initialCooldownPeriod:
+                              type: number
+                            pollingInterval:
+                              type: number
+                            triggers:
+                              items:
+                                properties:
+                                  authenticationRef:
+                                    properties:
+                                      name:
+                                        type: string
+                                    type: object
+                                  metadata:
+                                    additionalProperties:
+                                      type: string
+                                    type: object
+                                  metricType:
+                                    type: string
+                                  name:
+                                    type: string
+                                  type:
+                                    type: string
+                                  useCachedMetrics:
+                                    type: boolean
+                                type: object
+                              type: array
+                          type: object
                         maxConcurrency:
                           type: number
                         maxScale:
@@ -434,7 +549,14 @@ spec:
                         minScale:
                           type: number
                         multi:
-                          type: string
+                          items:
+                            properties:
+                              metric:
+                                type: string
+                              target:
+                                type: number
+                            type: object
+                          type: array
                         scaleToZeroDelay:
                           type: number
                         target:
@@ -442,6 +564,8 @@ spec:
                       type: object
                     capacityAI:
                       type: boolean
+                    capacityAIUpdateMinutes:
+                      type: number
                     debug:
                       type: boolean
                     location:

@@ -377,6 +377,30 @@ spec:
                     type: object
                   headlamp:
                     type: object
+                  juiceFS:
+                    properties:
+                      bucket:
+                        type: string
+                      redis:
+                        properties:
+                          maxCpu:
+                            type: string
+                          maxMemory:
+                            type: string
+                          minCpu:
+                            type: string
+                          minMemory:
+                            type: string
+                          replicas:
+                            type: number
+                          storage:
+                            type: string
+                        type: object
+                      storageSecretLink:
+                        type: string
+                      storageType:
+                        type: string
+                    type: object
                   localPathStorage:
                     type: object
                   logs:
