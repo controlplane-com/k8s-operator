@@ -47,6 +47,8 @@ spec:
                     type: string
                   hubEndpoint:
                     type: string
+                  protocolVersion:
+                    type: string
                   registrationToken:
                     type: string
                 type: object
@@ -78,6 +80,8 @@ spec:
                     type: string
                 type: object
               phase:
+                type: string
+              protocolVersion:
                 type: string
             type: object
           tags:

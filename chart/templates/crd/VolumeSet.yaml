@@ -47,6 +47,21 @@ spec:
                     type: number
                   minFreePercentage:
                     type: number
+                  predictive:
+                    properties:
+                      enabled:
+                        type: boolean
+                      lookbackHours:
+                        type: number
+                      minDataPoints:
+                        type: number
+                      minGrowthRateGBPerHour:
+                        type: number
+                      projectionHours:
+                        type: number
+                      scalingFactor:
+                        type: number
+                    type: object
                   scalingFactor:
                     type: number
                 type: object
