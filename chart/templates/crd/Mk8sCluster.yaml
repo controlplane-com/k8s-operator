@@ -516,6 +516,11 @@ spec:
                           properties:
                             bootDiskSize:
                               type: number
+                            cpuOptions:
+                              properties:
+                                nestedVirtualization:
+                                  type: boolean
+                              type: object
                             extraSecurityGroupIds:
                               items:
                                 type: string
