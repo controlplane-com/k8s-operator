@@ -437,6 +437,43 @@ spec:
                     type: string
                   schedule:
                     type: string
+                  schedules:
+                    items:
+                      properties:
+                        containerOverrides:
+                          items:
+                            properties:
+                              args:
+                                items:
+                                  type: string
+                                type: array
+                              command:
+                                type: string
+                              cpu:
+                                type: string
+                              env:
+                                items:
+                                  properties:
+                                    name:
+                                      type: string
+                                    value:
+                                      type: string
+                                  type: object
+                                type: array
+                              image:
+                                type: string
+                              memory:
+                                type: string
+                              name:
+                                type: string
+                            type: object
+                          type: array
+                        name:
+                          type: string
+                        schedule:
+                          type: string
+                      type: object
+                    type: array
                 type: object
               loadBalancer:
                 properties:
