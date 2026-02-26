@@ -101,6 +101,15 @@ spec:
                             type: string
                           hostRegex:
                             type: string
+                          mirror:
+                            items:
+                              properties:
+                                percent:
+                                  type: number
+                                workloadLink:
+                                  type: string
+                              type: object
+                            type: array
                           port:
                             type: number
                           prefix:
