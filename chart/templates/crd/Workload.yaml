@@ -1501,6 +1501,8 @@ spec:
                   resolvedForVersion:
                     type: number
                 type: object
+              suspendedStatus:
+                type: string
             type: object
           tags:
             additionalProperties:
