@@ -19,6 +19,13 @@ spec:
             type: string
           gvc:
             type: string
+          health:
+            properties:
+              readiness:
+                type: string
+              syncFailed:
+                type: boolean
+            type: object
           id:
             type: string
           kind:
