@@ -1,0 +1,51 @@
+name: Publish Helm Chart
+
+on:
+  push:
+    tags:
+      - 'chart-v*'
+  workflow_dispatch:
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          path: main
+
+      - name: Read chart version
+        id: version
+        run: |
+          VERSION=$(grep '^version:' main/chart/Chart.yaml | awk '{print $2}')
+          echo "chart_version=$VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Setup Helm
+        uses: azure/setup-helm@v4
+
+      - name: Checkout gh-pages
+        uses: actions/checkout@v4
+        with:
+          ref: gh-pages
+          path: gh-pages
+
+      - name: Package and index
+        run: |
+          helm package main/chart/ --destination gh-pages/published-charts
+          helm repo index gh-pages/published-charts \
+            --merge gh-pages/index.yaml \
+            --url https://controlplane-com.github.io/k8s-operator/published-charts
+          mv gh-pages/published-charts/index.yaml gh-pages/index.yaml
+
+      - name: Push to gh-pages
+        run: |
+          cd gh-pages
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add published-charts/ index.yaml
+          git commit -m "Publish chart v${{ steps.version.outputs.chart_version }}"
+          git push origin gh-pages
