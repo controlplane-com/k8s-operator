@@ -608,7 +608,18 @@ spec:
                     type: array
                 type: object
               rolloutOptions:
-                type: string
+                properties:
+                  maxSurgeReplicas:
+                    type: string
+                  maxUnavailableReplicas:
+                    type: string
+                  minReadySeconds:
+                    type: number
+                  scalingPolicy:
+                    type: string
+                  terminationGracePeriodSeconds:
+                    type: number
+                type: object
               securityOptions:
                 properties:
                   filesystemGroupId:
