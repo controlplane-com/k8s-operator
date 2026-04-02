@@ -106,6 +106,8 @@ spec:
                               properties:
                                 percent:
                                   type: number
+                                port:
+                                  type: number
                                 workloadLink:
                                   type: string
                               type: object

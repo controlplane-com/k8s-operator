@@ -851,6 +851,19 @@ spec:
                     items:
                       type: string
                     type: array
+                  locationOptions:
+                    items:
+                      properties:
+                        latencyOffsetMs:
+                          type: number
+                        latencyToleranceMs:
+                          type: number
+                        locationLink:
+                          type: string
+                        routingTier:
+                          type: number
+                      type: object
+                    type: array
                   locationQuery:
                     properties:
                       context:
