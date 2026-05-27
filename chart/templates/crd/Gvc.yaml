@@ -41,6 +41,8 @@ spec:
             type: string
           spec:
             properties:
+              aliasWorkloadLink:
+                type: string
               domain:
                 type: string
               endpointNamingFormat:
