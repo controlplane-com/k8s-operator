@@ -384,6 +384,11 @@ spec:
                     type: object
                   headlamp:
                     type: object
+                  kubevirt:
+                    properties:
+                      scratchSpaceStorageClass:
+                        type: string
+                    type: object
                   localPathStorage:
                     type: object
                   logs:
@@ -428,6 +433,8 @@ spec:
                           retainLabels:
                             type: string
                         type: object
+                    type: object
+                  nodeLocalDns:
                     type: object
                   nvidia:
                     properties:

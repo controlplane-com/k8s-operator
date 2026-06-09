@@ -216,6 +216,8 @@ spec:
                 type: string
               status:
                 type: string
+              statusUpdated:
+                type: string
               warning:
                 type: string
             type: object

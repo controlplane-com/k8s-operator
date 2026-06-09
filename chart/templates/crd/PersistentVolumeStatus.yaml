@@ -17,6 +17,8 @@ spec:
             additionalProperties:
               type: string
             type: object
+          currentBytesFree:
+            type: number
           currentBytesUsed:
             type: number
           currentSize:
