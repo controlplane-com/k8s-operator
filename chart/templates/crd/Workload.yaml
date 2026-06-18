@@ -255,15 +255,11 @@ spec:
                             type: number
                           bus:
                             type: string
-                          cdrom:
-                            type: boolean
                           name:
                             type: string
                           path:
                             type: string
                           recoveryPolicy:
-                            type: string
-                          serial:
                             type: string
                           uri:
                             type: string
@@ -1383,15 +1379,11 @@ spec:
                               type: number
                             bus:
                               type: string
-                            cdrom:
-                              type: boolean
                             name:
                               type: string
                             path:
                               type: string
                             recoveryPolicy:
-                              type: string
-                            serial:
                               type: string
                             uri:
                               type: string
@@ -1469,24 +1461,6 @@ spec:
                         type: number
                       threads:
                         type: number
-                    type: object
-                  features:
-                    properties:
-                      acpi:
-                        type: boolean
-                      apic:
-                        type: boolean
-                      rng:
-                        type: boolean
-                      smm:
-                        type: boolean
-                      tpm:
-                        properties:
-                          enabled:
-                            type: boolean
-                          persistent:
-                            type: boolean
-                        type: object
                     type: object
                   firmware:
                     properties:

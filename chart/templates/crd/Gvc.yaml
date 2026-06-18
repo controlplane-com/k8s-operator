@@ -841,15 +841,11 @@ spec:
                               type: number
                             bus:
                               type: string
-                            cdrom:
-                              type: boolean
                             name:
                               type: string
                             path:
                               type: string
                             recoveryPolicy:
-                              type: string
-                            serial:
                               type: string
                             uri:
                               type: string
