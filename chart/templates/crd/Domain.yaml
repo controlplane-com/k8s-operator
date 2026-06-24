@@ -87,6 +87,17 @@ spec:
                     routes:
                       items:
                         properties:
+                          canaries:
+                            items:
+                              properties:
+                                port:
+                                  type: number
+                                weight:
+                                  type: number
+                                workloadLink:
+                                  type: string
+                              type: object
+                            type: array
                           headers:
                             properties:
                               request:
