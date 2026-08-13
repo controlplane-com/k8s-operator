@@ -142,6 +142,8 @@ spec:
                             type: number
                           currentSize:
                             type: number
+                          diskType:
+                            type: string
                           driver:
                             type: string
                           index:
@@ -149,6 +151,8 @@ spec:
                           iops:
                             type: number
                           lifecycle:
+                            type: string
+                          node:
                             type: string
                           oldStorageDeviceIds:
                             items:
