@@ -373,6 +373,15 @@ spec:
                 properties:
                   affinity:
                     type: string
+                  metadata:
+                    properties:
+                      labels:
+                        additionalProperties:
+                          type: string
+                        type: object
+                    type: object
+                  schedulerName:
+                    type: string
                   tolerations:
                     items:
                       type: string
