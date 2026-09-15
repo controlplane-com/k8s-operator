@@ -25,13 +25,13 @@ spec:
                 type: string
               trustPolicy:
                 properties:
-                  statement:
+                  Statement:
                     items:
                       additionalProperties:
                         type: string
                       type: object
                     type: array
-                  version:
+                  Version:
                     type: string
                 type: object
             type: object
@@ -108,13 +108,13 @@ spec:
           nativeNetworkResources:
             items:
               properties:
+                FQDN:
+                  type: string
                 awsPrivateLink:
                   properties:
                     endpointServiceName:
                       type: string
                   type: object
-                fQDN:
-                  type: string
                 gcpServiceConnect:
                   properties:
                     targetService:
@@ -131,14 +131,14 @@ spec:
           networkResources:
             items:
               properties:
-                agentLink:
+                FQDN:
                   type: string
-                fQDN:
-                  type: string
-                iPs:
+                IPs:
                   items:
                     type: string
                   type: array
+                agentLink:
+                  type: string
                 name:
                   type: string
                 ports:

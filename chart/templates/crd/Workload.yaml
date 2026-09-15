@@ -277,6 +277,48 @@ spec:
                         properties:
                           advanced:
                             properties:
+                              horizontalPodAutoscalerConfig:
+                                properties:
+                                  behavior:
+                                    properties:
+                                      scaleDown:
+                                        properties:
+                                          policies:
+                                            items:
+                                              properties:
+                                                periodSeconds:
+                                                  type: number
+                                                type:
+                                                  type: string
+                                                value:
+                                                  type: number
+                                              type: object
+                                            type: array
+                                          selectPolicy:
+                                            type: string
+                                          stabilizationWindowSeconds:
+                                            type: number
+                                        type: object
+                                      scaleUp:
+                                        properties:
+                                          policies:
+                                            items:
+                                              properties:
+                                                periodSeconds:
+                                                  type: number
+                                                type:
+                                                  type: string
+                                                value:
+                                                  type: number
+                                              type: object
+                                            type: array
+                                          selectPolicy:
+                                            type: string
+                                          stabilizationWindowSeconds:
+                                            type: number
+                                        type: object
+                                    type: object
+                                type: object
                               scalingModifiers:
                                 properties:
                                   activationTarget:
@@ -518,6 +560,48 @@ spec:
                           properties:
                             advanced:
                               properties:
+                                horizontalPodAutoscalerConfig:
+                                  properties:
+                                    behavior:
+                                      properties:
+                                        scaleDown:
+                                          properties:
+                                            policies:
+                                              items:
+                                                properties:
+                                                  periodSeconds:
+                                                    type: number
+                                                  type:
+                                                    type: string
+                                                  value:
+                                                    type: number
+                                                type: object
+                                              type: array
+                                            selectPolicy:
+                                              type: string
+                                            stabilizationWindowSeconds:
+                                              type: number
+                                          type: object
+                                        scaleUp:
+                                          properties:
+                                            policies:
+                                              items:
+                                                properties:
+                                                  periodSeconds:
+                                                    type: number
+                                                  type:
+                                                    type: string
+                                                  value:
+                                                    type: number
+                                                type: object
+                                              type: array
+                                            selectPolicy:
+                                              type: string
+                                            stabilizationWindowSeconds:
+                                              type: number
+                                          type: object
+                                      type: object
+                                  type: object
                                 scalingModifiers:
                                   properties:
                                     activationTarget:
