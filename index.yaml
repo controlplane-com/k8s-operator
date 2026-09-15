@@ -4,7 +4,27 @@ entries:
   - annotations:
       category: Helm Chart
     apiVersion: v2
-    created: "2026-03-26T18:37:40.084748638Z"
+    created: "2026-09-15T13:43:29.895806394Z"
+    description: A Helm chart for the Control Plane Kubernetes Operator
+    digest: 260ff5cbbc9087ea953169774da6dc34a3790daf79405e8c44f003b419cdf3ce
+    keywords:
+    - go
+    - Control Plane
+    - helm
+    maintainers:
+    - email: kyle@controlplane.com
+      name: Kyle Cupp
+    name: cpln-operator
+    sources:
+    - https://github.com/controlplane-com/k8s-operator
+    type: application
+    urls:
+    - https://controlplane-com.github.io/k8s-operator/published-charts/cpln-operator-0.5.1.tgz
+    version: 0.5.1
+  - annotations:
+      category: Helm Chart
+    apiVersion: v2
+    created: "2026-09-15T13:43:29.895222046Z"
     description: A Helm chart for the Control Plane Kubernetes Operator
     digest: f4bf3e4220685803c776c960812c0dc34dac8e208baec99609094ab62d02c307
     keywords:
@@ -24,7 +44,7 @@ entries:
   - annotations:
       category: Helm Chart
     apiVersion: v2
-    created: "2026-03-26T18:37:40.083898696Z"
+    created: "2026-09-15T13:43:29.894724897Z"
     description: A Helm chart for the Control Plane Kubernetes Operator
     digest: 39ef8e8c5c01029488ed1b12c84dbfcf1004db5690f41115fded8e7d313370b5
     keywords:
@@ -44,7 +64,7 @@ entries:
   - annotations:
       category: Helm Chart
     apiVersion: v2
-    created: "2026-03-26T18:37:40.082969318Z"
+    created: "2026-09-15T13:43:29.894139638Z"
     description: A Helm chart for the Control Plane Kubernetes Operator
     digest: db5d00b6a7efc17cc77282cfa6d966781ff95f500082a74a1a39ed60a965a71a
     keywords:
@@ -64,7 +84,7 @@ entries:
   - annotations:
       category: Helm Chart
     apiVersion: v2
-    created: "2026-03-26T18:37:40.081844557Z"
+    created: "2026-09-15T13:43:29.893291663Z"
     description: A Helm chart for the Control Plane Kubernetes Operator
     digest: 6cf24b1f133bc615017fd2258ccfcf587dc6db8e12f11c988fd04464234010ae
     keywords:
@@ -84,7 +104,7 @@ entries:
   - annotations:
       category: Helm Chart
     apiVersion: v2
-    created: "2026-03-26T18:37:40.081143612Z"
+    created: "2026-09-15T13:43:29.892855775Z"
     description: A Helm chart for the Control Plane Kubernetes Operator
     digest: ec5f835515de673e8d0b14f801e6fbe03caf67729c88f35a19af24ae8132862e
     keywords:
@@ -104,7 +124,7 @@ entries:
   - annotations:
       category: Helm Chart
     apiVersion: v2
-    created: "2026-03-26T18:37:40.08046583Z"
+    created: "2026-09-15T13:43:29.892402492Z"
     description: A Helm chart for the Control Plane Kubernetes Operator
     digest: d909cf13795f8b96a07b1a9f55a95a8db28f1644ab9c3896457c7c633547cf41
     keywords:
@@ -124,7 +144,7 @@ entries:
   - annotations:
       category: Helm Chart
     apiVersion: v2
-    created: "2026-03-26T18:37:40.07957387Z"
+    created: "2026-09-15T13:43:29.891963811Z"
     description: A Helm chart for the Control Plane Kubernetes Operator
     digest: 4b0657b93f8e5b5e71c3afbac73cf0e534dc95ac81e5a8091ddc5eeb44d71d26
     keywords:
@@ -144,7 +164,7 @@ entries:
   - annotations:
       category: Helm Chart
     apiVersion: v2
-    created: "2026-03-26T18:37:40.078348365Z"
+    created: "2026-09-15T13:43:29.891204649Z"
     description: A Helm chart for the Control Plane Kubernetes Operator
     digest: 7b58019def4b208ad1f413287d19ba877aeef955b4edef820d7eb39e4d94690b
     keywords:
@@ -164,7 +184,7 @@ entries:
   - annotations:
       category: Helm Chart
     apiVersion: v2
-    created: "2026-03-26T18:37:40.077624067Z"
+    created: "2026-09-15T13:43:29.890481749Z"
     description: A Helm chart for the Control Plane Kubernetes Operator
     digest: 2ac38e190746081c7c9ddc9b319f937d41fe5ffde58217e9d8e579362fceb1e3
     keywords:
@@ -184,7 +204,7 @@ entries:
   - annotations:
       category: Helm Chart
     apiVersion: v2
-    created: "2026-03-26T18:37:40.076848703Z"
+    created: "2026-09-15T13:43:29.890040114Z"
     description: A Helm chart for the Control Plane Kubernetes Operator
     digest: 62f84f4bce0582bde8fbe16d0fd19c4353596969c9d7d4bff79747ef26801a0f
     keywords:
@@ -204,7 +224,7 @@ entries:
   - annotations:
       category: Helm Chart
     apiVersion: v2
-    created: "2026-03-26T18:37:40.076115468Z"
+    created: "2026-09-15T13:43:29.889523636Z"
     description: A Helm chart for the Control Plane Kubernetes Operator
     digest: b0b99811fc37252642ddb58004fad435d2bc739226198a7aa70e6e7e60feac35
     keywords:
@@ -224,7 +244,7 @@ entries:
   - annotations:
       category: Helm Chart
     apiVersion: v2
-    created: "2026-03-26T18:37:40.07476421Z"
+    created: "2026-09-15T13:43:29.889057995Z"
     description: A Helm chart for the Control Plane Kubernetes Operator
     digest: 46dd833ab5612143da377909aa15f146e71f379f1787fffb94d5fd527f78b60a
     keywords:
@@ -241,4 +261,4 @@ entries:
     urls:
     - https://controlplane-com.github.io/k8s-operator/published-charts/cpln-operator-0.1.0.tgz
     version: 0.1.0
-generated: "2026-03-26T18:37:40.073759209Z"
+generated: "2026-09-15T13:43:29.888396823Z"
