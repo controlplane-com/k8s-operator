@@ -189,6 +189,13 @@ spec:
                               replicas:
                                 type: number
                             type: object
+                          maintainer:
+                            properties:
+                              env:
+                                additionalProperties:
+                                  type: string
+                                type: object
+                            type: object
                           middlebox:
                             properties:
                               bandwidthAlertMbps:
@@ -383,6 +390,8 @@ spec:
                   dashboard:
                     type: object
                   headlamp:
+                    type: object
+                  kata:
                     type: object
                   kubevirt:
                     properties:

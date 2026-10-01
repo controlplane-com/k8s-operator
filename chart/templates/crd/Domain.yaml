@@ -45,6 +45,8 @@ spec:
                 type: boolean
               certChallengeType:
                 type: string
+              certificateGeneratorLink:
+                type: string
               dnsMode:
                 type: string
               gvcLink:

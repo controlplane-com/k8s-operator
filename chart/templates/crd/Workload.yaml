@@ -719,6 +719,22 @@ spec:
                   terminationGracePeriodSeconds:
                     type: number
                 type: object
+              sandbox:
+                properties:
+                  appPort:
+                    type: number
+                  ide:
+                    type: string
+                  scaleToZeroDelay:
+                    type: number
+                  ttl:
+                    type: string
+                  volume:
+                    properties:
+                      size:
+                        type: number
+                    type: object
+                type: object
               securityOptions:
                 properties:
                   filesystemGroupId:
