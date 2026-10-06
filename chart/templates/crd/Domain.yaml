@@ -100,6 +100,8 @@ spec:
                                   type: string
                               type: object
                             type: array
+                          caseInsensitive:
+                            type: boolean
                           headers:
                             properties:
                               request:
