@@ -95,6 +95,38 @@ spec:
       - //location/aws-eu-central-1
 ```
 
+## Sync Modes
+
+By default, the operator syncs in both directions. When a custom resource changes, the operator pushes it to Control
+Plane. Otherwise, it pulls the current state from Control Plane into the custom resource.
+
+Set `SYNC_MODE=pull-only` to make Control Plane the source of truth. In this mode, the operator never writes to Control
+Plane:
+
+- Changes made in Control Plane are pulled into the custom resources.
+- Edits to custom resources are never pushed. They are overwritten by the next pull.
+- Deleting a custom resource never deletes the Control Plane resource.
+- If a resource no longer exists in Control Plane, its custom resource is removed from Kubernetes, as in a normal pull.
+
+The mode applies to every resource the operator manages. An invalid value stops the operator from starting.
+
+```shell
+helm upgrade cpln-operator cpln/cpln-operator --reuse-values --set env.SYNC_MODE=pull-only
+```
+
+### Hotfixing Control Plane During an Incident
+
+Pausing sync in Argo CD doesn't stop the operator. It keeps reconciling the custom resources with Control Plane, so any
+change to a custom resource is still pushed. To make a direct fix in Control Plane stick:
+
+1. Turn off automated sync (or at least self-heal) for the affected Argo CD application. Otherwise Argo and the operator
+   keep rewriting the custom resources.
+2. Switch the operator to `pull-only` with the `helm upgrade` command above.
+3. Apply your fix in Control Plane. The operator pulls it into the custom resources.
+4. Once the real fix is merged to Git, switch back to `bidirectional` (`--set env.SYNC_MODE=bidirectional`) and
+   re-enable automated sync in Argo CD. Argo restores the custom resources from Git, and the operator pushes them to
+   Control Plane.
+
 ## Argo CD
 
 The operator integrates closely with [ArgoCD](https://argoproj.github.io/cd/). There is no special configuration needed

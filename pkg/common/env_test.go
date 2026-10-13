@@ -170,3 +170,42 @@ func TestGetEnvSliceBools(t *testing.T) {
 		t.Errorf("GetEnvSlice[bool] with invalid item = %v, want default %v", got, defVal)
 	}
 }
+
+func TestGetSyncMode(t *testing.T) {
+	prevVal, wasSet := os.LookupEnv("SYNC_MODE")
+	defer func() {
+		if wasSet {
+			os.Setenv("SYNC_MODE", prevVal)
+		} else {
+			os.Unsetenv("SYNC_MODE")
+		}
+	}()
+
+	// Scenario: SYNC_MODE is not set; should default to bidirectional.
+	os.Unsetenv("SYNC_MODE")
+	got, err := common.GetSyncMode()
+	if err != nil || got != common.SYNC_MODE_BIDIRECTIONAL {
+		t.Errorf("GetSyncMode with unset variable = (%q, %v), want (%q, nil)", got, err, common.SYNC_MODE_BIDIRECTIONAL)
+	}
+
+	// Scenario: valid values, including surrounding whitespace and mixed case.
+	for in, want := range map[string]string{
+		"bidirectional": common.SYNC_MODE_BIDIRECTIONAL,
+		"pull-only":     common.SYNC_MODE_PULL_ONLY,
+		" Pull-Only ":   common.SYNC_MODE_PULL_ONLY,
+	} {
+		os.Setenv("SYNC_MODE", in)
+		got, err = common.GetSyncMode()
+		if err != nil || got != want {
+			t.Errorf("GetSyncMode(%q) = (%q, %v), want (%q, nil)", in, got, err, want)
+		}
+	}
+
+	// Scenario: invalid values must be rejected, not silently treated as bidirectional.
+	for _, in := range []string{"pull_only", "push-only", "pullonly"} {
+		os.Setenv("SYNC_MODE", in)
+		if got, err = common.GetSyncMode(); err == nil {
+			t.Errorf("GetSyncMode(%q) = (%q, nil), want an error", in, got)
+		}
+	}
+}

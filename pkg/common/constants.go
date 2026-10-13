@@ -25,4 +25,7 @@ const (
 	RESOURCE_POLICY_KEEP       = "keep"
 
 	SPECIAL_SECRET_DATA_KEY = "value"
+
+	SYNC_MODE_BIDIRECTIONAL = "bidirectional"
+	SYNC_MODE_PULL_ONLY     = "pull-only"
 )

@@ -1,6 +1,7 @@
 package common
 
 import (
+	"fmt"
 	"math"
 	"os"
 	"strconv"
@@ -79,6 +80,18 @@ func GetEnvSlice[T any](key string, defaultValue []T) []T {
 	}
 
 	return result
+}
+
+// GetSyncMode reads SYNC_MODE. An unrecognized value is an error rather than a silent fallback, so a typo can't
+// leave the operator pushing to Control Plane when pull-only was intended.
+func GetSyncMode() (string, error) {
+	mode := strings.ToLower(strings.TrimSpace(GetEnvStr("SYNC_MODE", SYNC_MODE_BIDIRECTIONAL)))
+	switch mode {
+	case SYNC_MODE_BIDIRECTIONAL, SYNC_MODE_PULL_ONLY:
+		return mode, nil
+	default:
+		return "", fmt.Errorf("invalid SYNC_MODE %q: must be %q or %q", mode, SYNC_MODE_BIDIRECTIONAL, SYNC_MODE_PULL_ONLY)
+	}
 }
 
 var backOffBase = float64(GetEnvInt("EXPONENTIAL_BACKOFF_BASE", 2))

@@ -51,6 +51,7 @@ type controller struct {
 	gvk           schema.GroupVersionKind
 	cplnConnector cpln.Connector
 	k8sConnector  Connector
+	syncMode      string
 }
 
 var zeroResult = ctrl.Result{}
@@ -66,13 +67,18 @@ func BuildControllers(mgr ctrl.Manager) error {
 		return nil
 	}
 	url := common.GetEnvStr("CPLN_API_URL", "https://api.cpln.io")
-	if err := buildGenericControllers(mgr, url); err != nil {
+	syncMode, err := common.GetSyncMode()
+	if err != nil {
 		return err
 	}
-	return buildSpecializedControllers(mgr, url)
+	ctrl.Log.WithName("setup").Info(fmt.Sprintf("Sync mode: %s", syncMode))
+	if err := buildGenericControllers(mgr, url, syncMode); err != nil {
+		return err
+	}
+	return buildSpecializedControllers(mgr, url, syncMode)
 }
 
-func buildGenericControllers(mgr ctrl.Manager, url string) error {
+func buildGenericControllers(mgr ctrl.Manager, url string, syncMode string) error {
 	configuredKinds := common.GetEnvSlice[string]("MANAGE_KINDS", nil)
 	gvks, err := listGVKForCRDs()
 	if err != nil {
@@ -90,6 +96,7 @@ func buildGenericControllers(mgr ctrl.Manager, url string) error {
 			Scheme:        mgr.GetScheme(),
 			gvk:           gvk,
 			k8sConnector:  NewGenericConnector(gvk, mgr.GetClient()),
+			syncMode:      syncMode,
 		}
 		err = ctrl.NewControllerManagedBy(mgr).Named(fmt.Sprintf("%s_controller", gvk.Kind)).For(obj).Complete(r)
 		if err != nil {
@@ -99,12 +106,12 @@ func buildGenericControllers(mgr ctrl.Manager, url string) error {
 	return nil
 }
 
-func buildSpecializedControllers(mgr ctrl.Manager, url string) error {
+func buildSpecializedControllers(mgr ctrl.Manager, url string, syncMode string) error {
 	//TODO: add more specialized controllers here as needed
-	return buildSecretController(mgr, url)
+	return buildSecretController(mgr, url, syncMode)
 }
 
-func buildSecretController(mgr ctrl.Manager, url string) error {
+func buildSecretController(mgr ctrl.Manager, url string, syncMode string) error {
 	secret := &corev1.Secret{}
 	secret.SetGroupVersionKind(common.NativeSecretGVK)
 	r := &controller{
@@ -113,6 +120,7 @@ func buildSecretController(mgr ctrl.Manager, url string) error {
 		Scheme:        mgr.GetScheme(),
 		gvk:           common.NativeSecretGVK,
 		k8sConnector:  NewSecretConnector(mgr.GetClient()),
+		syncMode:      syncMode,
 	}
 	return ctrl.NewControllerManagedBy(mgr).Named("secret_controller").For(secret, builder.WithPredicates(syncPredicate())).Complete(r)
 }
@@ -185,7 +193,8 @@ func (r *controller) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Resu
 	st := operatorStatus(cr)
 	cplnLastSynced, _ := st["lastSyncedGeneration"].(int64)
 	var result ctrl.Result
-	if cplnLastSynced == g {
+	//In pull-only mode, Control Plane is authoritative and we never push, even if the CR has changed
+	if r.syncMode == common.SYNC_MODE_PULL_ONLY || cplnLastSynced == g {
 		result, err = r.syncFromCplnToK8s(cplnContext, l, cr)
 	} else {
 		result, err = r.syncFromK8sToCpln(cplnContext, l, cr)
@@ -203,7 +212,8 @@ func (r *controller) handleResourceDeletion(ctx cpln.Context, cr *unstructured.U
 	if err := r.cleanupSync(ctx, cr); err != nil {
 		return zeroResult, err
 	}
-	if resourcePolicy(cr) != common.RESOURCE_POLICY_KEEP {
+	//In pull-only mode, deleting the CR never deletes the Control Plane resource
+	if resourcePolicy(cr) != common.RESOURCE_POLICY_KEEP && r.syncMode != common.SYNC_MODE_PULL_ONLY {
 		err := r.cplnConnector.Delete(ctx, cr)
 		if err != nil {
 			syncFailed(cr, err.Error())
@@ -359,7 +369,11 @@ func (r *controller) verifyParent(ctx context.Context, parent *unstructured.Unst
 }
 
 func (r *controller) syncFromCplnToK8s(ctx cpln.Context, log logr.Logger, cr *unstructured.Unstructured) (ctrl.Result, error) {
-	log.Info("lastSyncedGeneration == generation, pulling from Control Plane")
+	if r.syncMode == common.SYNC_MODE_PULL_ONLY {
+		log.Info("pull-only mode, pulling from Control Plane")
+	} else {
+		log.Info("lastSyncedGeneration == generation, pulling from Control Plane")
+	}
 
 	cplnResource, err := r.cplnConnector.Get(ctx, cr)
 	if err != nil && !errors.Is(err, common.NotFoundError) {
