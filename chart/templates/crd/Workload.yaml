@@ -697,6 +697,11 @@ spec:
                       type: number
                   type: object
                 type: array
+              networking:
+                properties:
+                  interGvcFailover:
+                    type: boolean
+                type: object
               requestRetryPolicy:
                 properties:
                   attempts:
