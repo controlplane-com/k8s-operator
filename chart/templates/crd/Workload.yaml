@@ -76,6 +76,16 @@ spec:
                             type: string
                         type: object
                       type: array
+                    envFrom:
+                      items:
+                        properties:
+                          secretRef:
+                            properties:
+                              name:
+                                type: string
+                            type: object
+                        type: object
+                      type: array
                     gpu:
                       properties:
                         custom:
@@ -411,6 +421,13 @@ spec:
                   timeoutSeconds:
                     type: number
                 type: object
+              disruptionBudget:
+                properties:
+                  maxUnavailable:
+                    type: string
+                  minAvailable:
+                    type: string
+                type: object
               extras:
                 properties:
                   affinity:
@@ -699,8 +716,11 @@ spec:
                 type: array
               networking:
                 properties:
-                  interGvcFailover:
-                    type: boolean
+                  internal:
+                    properties:
+                      routing:
+                        type: string
+                    type: object
                 type: object
               requestRetryPolicy:
                 properties:
@@ -719,6 +739,8 @@ spec:
                     type: string
                   minReadySeconds:
                     type: number
+                  rolloutOnReferenceChange:
+                    type: boolean
                   scalingPolicy:
                     type: string
                   terminationGracePeriodSeconds:
@@ -730,13 +752,19 @@ spec:
                     type: number
                   ide:
                     type: string
+                  password:
+                    type: string
                   scaleToZeroDelay:
                     type: number
+                  token:
+                    type: string
                   ttl:
+                    type: string
+                  type:
                     type: string
                   volume:
                     properties:
-                      size:
+                      initialCapacity:
                         type: number
                     type: object
                 type: object

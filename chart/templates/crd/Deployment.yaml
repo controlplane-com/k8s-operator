@@ -50,6 +50,15 @@ spec:
                 type: string
               expectedDeploymentVersion:
                 type: number
+              identity:
+                properties:
+                  appliedAt:
+                    type: string
+                  link:
+                    type: string
+                  version:
+                    type: number
+                type: object
               internal:
                 type: string
               jobExecutions:

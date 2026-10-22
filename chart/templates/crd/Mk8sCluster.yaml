@@ -556,6 +556,8 @@ spec:
                               additionalProperties:
                                 type: string
                               type: object
+                            maxPods:
+                              type: number
                             maxSize:
                               type: number
                             minSize:
@@ -658,6 +660,8 @@ spec:
                               additionalProperties:
                                 type: string
                               type: object
+                            maxPods:
+                              type: number
                             maxSize:
                               type: number
                             minSize:
@@ -761,6 +765,8 @@ spec:
                               additionalProperties:
                                 type: string
                               type: object
+                            maxPods:
+                              type: number
                             maxSize:
                               type: number
                             minSize:
@@ -818,6 +824,8 @@ spec:
                               additionalProperties:
                                 type: string
                               type: object
+                            maxPods:
+                              type: number
                             memory:
                               type: string
                             name:
@@ -899,6 +907,8 @@ spec:
                               type: number
                             machineType:
                               type: string
+                            maxPods:
+                              type: number
                             maxSize:
                               type: number
                             minSize:
@@ -971,6 +981,8 @@ spec:
                               additionalProperties:
                                 type: string
                               type: object
+                            maxPods:
+                              type: number
                             name:
                               type: string
                             taints:
@@ -1009,6 +1021,8 @@ spec:
                               additionalProperties:
                                 type: string
                               type: object
+                            maxPods:
+                              type: number
                             name:
                               type: string
                             taints:
@@ -1054,6 +1068,8 @@ spec:
                               additionalProperties:
                                 type: string
                               type: object
+                            maxPods:
+                              type: number
                             maxSize:
                               type: number
                             minSize:
@@ -1114,6 +1130,8 @@ spec:
                               additionalProperties:
                                 type: string
                               type: object
+                            maxPods:
+                              type: number
                             maxSize:
                               type: number
                             minSize:
@@ -1207,6 +1225,8 @@ spec:
                               additionalProperties:
                                 type: string
                               type: object
+                            maxPods:
+                              type: number
                             maxSize:
                               type: number
                             minSize:
@@ -1267,6 +1287,8 @@ spec:
                               additionalProperties:
                                 type: string
                               type: object
+                            maxPods:
+                              type: number
                             maxSize:
                               type: number
                             minSize:
@@ -1345,6 +1367,8 @@ spec:
                               type: object
                             machineType:
                               type: string
+                            maxPods:
+                              type: number
                             maxSize:
                               type: number
                             minSize:
@@ -1492,6 +1516,8 @@ spec:
                               additionalProperties:
                                 type: string
                               type: object
+                            maxPods:
+                              type: number
                             maxSize:
                               type: number
                             minSize:
