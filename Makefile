@@ -1,4 +1,4 @@
-VERSION ?= 0.5.0
+VERSION ?= 0.5.1
 IMG ?= ghcr.io/controlplane-com/cpln-build/cpln-operator:v${VERSION}
 PLATFORM ?= linux/arm64,linux/amd64
 .PHONY: generate-rbac
