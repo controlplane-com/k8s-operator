@@ -183,16 +183,25 @@ func collectDeploymentMessages(deployments []*unstructured.Unstructured) []strin
 	var messages []string
 	for _, d := range deployments {
 		status, ok := d.Object["status"].(map[string]any)
-		if ok {
-			messages = append(messages, getMessage(status))
+		if !ok {
+			continue
 		}
-		for _, v := range status["versions"].([]any) {
+		messages = append(messages, getMessage(status))
+		versions, ok := status["versions"].([]any)
+		if !ok {
+			continue
+		}
+		for _, v := range versions {
 			v := v.(map[string]any)
 			m := getMessage(v)
 			if m != "" {
 				messages = append(messages, m)
 			}
-			for _, c := range v["containers"].(map[string]any) {
+			containers, ok := v["containers"].(map[string]any)
+			if !ok {
+				continue
+			}
+			for _, c := range containers {
 				c := c.(map[string]any)
 				m := getMessage(c)
 				if m != "" {
