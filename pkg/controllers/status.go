@@ -83,25 +83,38 @@ func generation(cr *unstructured.Unstructured) int64 {
 	}
 }
 
-func operatorStatus(cr *unstructured.Unstructured) map[string]any {
-	st, ok := cr.Object["status"].(map[string]any)
+// statusMap returns cr.Object["status"] as a map, resetting it to a fresh
+// empty map (and writing that back onto cr) if it's missing OR has an
+// unexpected type. Some CR source structs (e.g. cronjob.JobExecutionStatus)
+// have their own top-level "Status" field that serializes into this same
+// "status" key as a plain string, so presence alone isn't enough to prove
+// it's safe to treat as a map.
+func statusMap(cr *unstructured.Unstructured) map[string]any {
+	status, ok := cr.Object["status"].(map[string]any)
 	if !ok {
-		cr.Object["status"] = make(map[string]any)
-		st = cr.Object["status"].(map[string]any)
+		status = map[string]any{}
+		cr.Object["status"] = status
 	}
-	_, ok = st["operator"].(map[string]any)
-	if !ok {
+	return status
+}
+
+// readStatusMap is the read-only counterpart for `is*` predicates: it never
+// mutates cr, returning nil when "status" is missing or not a map.
+func readStatusMap(cr *unstructured.Unstructured) map[string]any {
+	status, _ := cr.Object["status"].(map[string]any)
+	return status
+}
+
+func operatorStatus(cr *unstructured.Unstructured) map[string]any {
+	st := statusMap(cr)
+	if _, ok := st["operator"].(map[string]any); !ok {
 		st["operator"] = map[string]any{}
 	}
-	cr.Object["status"] = st
-	return cr.Object["status"].(map[string]any)["operator"].(map[string]any)
+	return st["operator"].(map[string]any)
 }
 
 func ready(cr *unstructured.Unstructured) {
-	if _, ok := cr.Object["status"]; !ok {
-		cr.Object["status"] = map[string]any{}
-	}
-	status := cr.Object["status"].(map[string]any)
+	status := statusMap(cr)
 	status["phase"] = "Ready"
 	status["conditions"] = []map[string]any{
 		{
@@ -114,14 +127,8 @@ func ready(cr *unstructured.Unstructured) {
 }
 
 func isUnhealthy(cr *unstructured.Unstructured) bool {
-	if _, ok := cr.Object["status"]; !ok {
-		return false
-	}
-	status := cr.Object["status"].(map[string]any)
-	if status["phase"] == "Unhealthy" {
-		return true
-	}
-	return false
+	status := readStatusMap(cr)
+	return status != nil && status["phase"] == "Unhealthy"
 }
 
 func addErrorMessages(cr *unstructured.Unstructured, errorMessages ...string) {
@@ -130,10 +137,7 @@ func addErrorMessages(cr *unstructured.Unstructured, errorMessages ...string) {
 }
 
 func unhealthy(cr *unstructured.Unstructured) {
-	if _, ok := cr.Object["status"].(map[string]any); !ok {
-		cr.Object["status"] = map[string]any{}
-	}
-	status := cr.Object["status"].(map[string]any)
+	status := statusMap(cr)
 	status["phase"] = "Unhealthy"
 	status["conditions"] = []map[string]any{
 		{
@@ -144,21 +148,12 @@ func unhealthy(cr *unstructured.Unstructured) {
 }
 
 func isProgressing(cr *unstructured.Unstructured) bool {
-	if _, ok := cr.Object["status"]; !ok {
-		return false
-	}
-	status := cr.Object["status"].(map[string]any)
-	if status["phase"] == "Pending" {
-		return true
-	}
-	return false
+	status := readStatusMap(cr)
+	return status != nil && status["phase"] == "Pending"
 }
 
 func progressing(cr *unstructured.Unstructured) {
-	if _, ok := cr.Object["status"]; !ok {
-		cr.Object["status"] = map[string]any{}
-	}
-	status := cr.Object["status"].(map[string]any)
+	status := statusMap(cr)
 	status["phase"] = "Pending"
 	status["conditions"] = []map[string]any{
 		{
@@ -169,21 +164,12 @@ func progressing(cr *unstructured.Unstructured) {
 }
 
 func isSuspended(cr *unstructured.Unstructured) bool {
-	if _, ok := cr.Object["status"]; !ok {
-		return false
-	}
-	status := cr.Object["status"].(map[string]any)
-	if status["phase"] == "Suspended" {
-		return true
-	}
-	return false
+	status := readStatusMap(cr)
+	return status != nil && status["phase"] == "Suspended"
 }
 
 func suspended(cr *unstructured.Unstructured) {
-	if _, ok := cr.Object["status"]; !ok {
-		cr.Object["status"] = map[string]any{}
-	}
-	status := cr.Object["status"].(map[string]any)
+	status := statusMap(cr)
 	status["phase"] = "Suspended"
 	status["conditions"] = []map[string]any{
 		{
@@ -203,7 +189,7 @@ func synced(cr *unstructured.Unstructured, downstreamOnly bool, newStatus any) {
 	delete(o, "syncRetries")
 	delete(o, "validationError")
 
-	st := cr.Object["status"].(map[string]any)
+	st := statusMap(cr)
 	if m, ok := newStatus.(map[string]any); ok {
 		for k, v := range m {
 			if k == "operator" {
